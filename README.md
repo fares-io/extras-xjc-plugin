@@ -15,7 +15,7 @@ Add this library to the JAXB compiler plugin and activate the respective plugins
       <plugin>
         <groupId>io.fares.bind.xjc.plugins</groupId>
         <artifactId>extras-xjc-plugin</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
       </plugin>
     </plugins>
     <extension>true</extension>
