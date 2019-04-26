@@ -1,0 +1,113 @@
+# Force files listed below to have LF endings
+
+# Data Files
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.json          text eol=lf
+*.xml           text eol=lf
+
+# Other Formats
+*.md            text eol=lf
+*.README        text eol=lf
+*.sh            text eol=lf
+*.sql           text eol=lf
+*.txt           text eol=lf
+*.go            text eol=lf
+*.lua           text eol=lf
+*.md5           text eol=lf
+*.h             text eol=lf
+*.c             text eol=lf
+*.m             text eol=lf
+*.j2            text eol=lf
+*.cfg           text eol=lf
+*.conf          text eol=lf
+*.ini           text eol=lf
+*.crt           text eol=lf
+*.pem           text eol=lf
+*.key           text eol=lf
+*.xsl           text eol=lf
+*.xslt          text eol=lf
+*.xq            text eol=lf
+*.xquery        text eol=lf
+mvnw            text eol=lf
+Makefile        text eol=lf
+*.mk            text eol=lf
+
+# Design
+*.puml          text eol=lf
+*.xsd           text eol=lf
+*.xjb           text eol=lf
+*.jxb           text eol=lf
+*.episode       text eol=lf
+*.xew           text eol=lf
+
+# Web Development
+*.html          text eol=lf
+*.css           text eol=lf
+*.ts            text eol=lf
+*.js            text eol=lf
+*.jsx           text eol=lf
+*.jst           text eol=lf
+*.svg           text eol=lf
+*.scss          text eol=lf
+*.less          text eol=lf
+*.ftl           text eol=lf
+
+# Ruby Development
+*.rb            text eol=lf
+
+# Python Development
+*.j2            text eol=lf
+*.py            text eol=lf
+
+# Java Development
+*.java          text eol=lf
+*.properties    text eol=lf
+*.MF            text eol=lf
+*.jsp           text eol=lf
+*.jspx          text eol=lf
+
+# Source Control
+.gitignore      text eol=lf
+.editorconfig   text eol=lf
+.gitattributes  text eol=lf
+
+# Automation
+Vagrantfile     text eol=lf
+Dockerfile      text eol=lf
+Jenkinsfile     text eol=lf
+.gitlab_ci      text eol=lf
+
+# Only Windoze files get CRLF endings
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps            text eol=crlf
+*.cs            text eol=crlf
+
+# ignore binary files from any possible alterations
+*.jar           binary
+*.war           binary
+*.ear           binary
+*.zip           binary
+*.tgz           binary
+*.tar.gz        binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.pyc           binary
+*.class         binary
+*.rpm           binary
+*.deb           binary
+*.doc           binary
+*.docx          binary
+*.vsd           binary
+*.vsdx          binary
+*.xls           binary
+*.xlsx          binary
+*.otf           binary
+*.eot           binary
+*.ttf           binary
+*.woff          binary
+*.woff2         binary
+*.db            binary

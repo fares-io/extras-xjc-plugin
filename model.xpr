@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="18.0">
+    <meta>
+        <filters directoryPatterns="" filePatterns="oxygen.xpr" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options/>
+    </meta>
+    <projectTree name="model.xpr">
+        <folder path="src/test/resources/schemas/"/>
+        <folder name="plugin" path="."/>
+    </projectTree>
+</project>
