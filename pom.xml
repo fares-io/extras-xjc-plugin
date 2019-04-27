@@ -75,20 +75,20 @@
     <jaxb.version>2.3.2</jaxb.version>
     <jaxb.plugin.version>0.14.0</jaxb.plugin.version>
     <jaxb.basics.version>0.12.0</jaxb.basics.version>
-    <jackson.version>2.9.8</jackson.version>
+    <guava.version>27.1-jre</guava.version>
     <slf4j.version>1.7.26</slf4j.version>
     <logback.version>1.2.3</logback.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>5.4.2</junit.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jvnet.jaxb2_commons</groupId>
       <artifactId>jaxb2-basics-tools</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <!-- region xjc -->
     <dependency>
@@ -118,9 +118,15 @@
     </dependency>
     <!-- endregion -->
     <!-- region testing -->
+
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -176,10 +182,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
+      <!-- region xjc -->
       <dependency>
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
@@ -195,6 +202,8 @@
         <artifactId>codemodel</artifactId>
         <version>${jaxb.version}</version>
       </dependency>
+      <!-- endregion -->
+      <!-- region commons plugin -->
       <dependency>
         <groupId>org.jvnet.jaxb2_commons</groupId>
         <artifactId>jaxb2-basics-tools</artifactId>
@@ -231,6 +240,7 @@
         <artifactId>maven-jaxb2-plugin-testing</artifactId>
         <version>${jaxb.plugin.version}</version>
       </dependency>
+      <!-- endregion -->
       <!-- region logging dependencies -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -267,9 +277,11 @@
       <!-- endregion -->
       <!-- region testing dependencies -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.github.javaparser</groupId>
