@@ -73,6 +73,7 @@
     <maven.flatten.version>1.1.0</maven.flatten.version>
 
     <jaxb.version>2.3.2</jaxb.version>
+    <xalan.version>2.7.2</xalan.version>
     <jaxb.plugin.version>0.14.0</jaxb.plugin.version>
     <jaxb.basics.version>0.12.0</jaxb.basics.version>
     <guava.version>27.1-jre</guava.version>
@@ -118,7 +119,6 @@
     </dependency>
     <!-- endregion -->
     <!-- region testing -->
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -152,6 +152,12 @@
     <dependency>
       <groupId>org.javamoney.moneta</groupId>
       <artifactId>moneta-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- hack to make JAXP behave under Java 11 -->
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- endregion -->
@@ -201,6 +207,11 @@
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>codemodel</artifactId>
         <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>${xalan.version}</version>
       </dependency>
       <!-- endregion -->
       <!-- region commons plugin -->

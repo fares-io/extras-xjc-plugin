@@ -16,10 +16,9 @@
 package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.Options;
-import com.sun.tools.xjc.model.CClassInfo;
-import com.sun.tools.xjc.model.CPropertyInfo;
-import com.sun.tools.xjc.model.Model;
+import com.sun.tools.xjc.model.*;
 import com.sun.tools.xjc.outline.Outline;
+import io.fares.bind.xjc.plugins.extras.Utils;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.xml.sax.ErrorHandler;
 
@@ -140,7 +139,18 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
 
   @Override
   public boolean run(Outline outline, Options opt) {
+
+    // dirty hack to find any customizations from prior episodes https://github.com/eclipse-ee4j/jaxb-ri/issues/1319
+    Model model = outline.getModel();
+    for (TypeUse use : model.typeUses().values()) {
+      CNonElement element = use.getInfo();
+      if (!Utils.findCustomizations(element, COMPLEX_XML_ADAPTER_NAME).isEmpty() && opt.debugMode) {
+        logger.info(String.format("acknowledge customization %s on %s", COMPLEX_XML_ADAPTER, element.getTypeName()));
+      }
+    }
+
     return true;
+
   }
 
 }
