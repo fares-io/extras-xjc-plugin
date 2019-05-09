@@ -21,6 +21,7 @@ import com.sun.tools.xjc.model.CPluginCustomization;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.xml.sax.Locator;
 
 import javax.xml.namespace.QName;
 import java.util.LinkedList;
@@ -34,13 +35,12 @@ public class Utils {
     return findCustomizations(customizable.getCustomizations(), name);
   }
 
-  private static List<CPluginCustomization> findCustomizations(CCustomizations customizations, QName name) {
+  public static List<CPluginCustomization> findCustomizations(CCustomizations customizations, QName name) {
 
     final List<CPluginCustomization> foundCustomizations = new LinkedList<>();
 
     for (CPluginCustomization customization : customizations) {
-      if (fixNull(customization.element.getNamespaceURI()).equals(name.getNamespaceURI())
-        && fixNull(customization.element.getLocalName()).equals(name.getLocalPart())) {
+      if (matchesCustomization(customization, name)) {
         customization.markAsAcknowledged();
         foundCustomizations.add(customization);
       }
@@ -49,6 +49,36 @@ public class Utils {
     return foundCustomizations;
 
   }
+
+  public static boolean matchesCustomization(CPluginCustomization customization, QName name) {
+    return fixNull(customization.element.getNamespaceURI()).equals(name.getNamespaceURI())
+      && fixNull(customization.element.getLocalName()).equals(name.getLocalPart());
+  }
+
+  public static String toLocation(Locator l) {
+
+    if (l == null) {
+      return "unknown";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    if (l.getSystemId() != null) {
+      sb.append(l.getSystemId());
+    } else if (l.getPublicId() != null) {
+      sb.append(l.getPublicId());
+    } else {
+      sb.append("unknown");
+    }
+
+    return sb.append('{')
+      .append(l.getLineNumber())
+      .append('.')
+      .append(l.getColumnNumber())
+      .append('}')
+      .toString();
+
+  }
+
 
   /**
    * Starting from a node, find the namespace declaration for a prefix and return the namespace.
