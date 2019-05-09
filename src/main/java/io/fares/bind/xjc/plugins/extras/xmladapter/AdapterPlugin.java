@@ -16,16 +16,27 @@
 package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.Options;
-import com.sun.tools.xjc.model.*;
-import com.sun.tools.xjc.outline.Outline;
-import io.fares.bind.xjc.plugins.extras.Utils;
+import com.sun.tools.xjc.model.CClassInfo;
+import com.sun.tools.xjc.model.CCustomizations;
+import com.sun.tools.xjc.model.CPropertyInfo;
+import com.sun.tools.xjc.model.Model;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.agent.ByteBuddyAgent;
+import net.bytebuddy.asm.Advice;
+import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.xml.sax.ErrorHandler;
 
 import javax.xml.namespace.QName;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Stack;
 
 import static java.lang.String.format;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 public class AdapterPlugin extends AbstractParameterizablePlugin {
 
@@ -46,13 +57,54 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
   }
 
   @Override
-  public List<String> getCustomizationURIs() {
-    return Collections.singletonList(NS);
+  public Collection<QName> getCustomizationElementNames() {
+    return Collections.singletonList(COMPLEX_XML_ADAPTER_NAME);
   }
 
   @Override
-  public Collection<QName> getCustomizationElementNames() {
-    return Collections.singletonList(COMPLEX_XML_ADAPTER_NAME);
+  protected void init(Options options) throws Exception {
+
+    // this is a dirty hack to prevent XJC from falling over when a customisation is attached in a schema that is
+    // part of a prior compilation episode - https://github.com/eclipse-ee4j/jaxb-ri/issues/1320
+
+    ByteBuddyAgent.install();
+
+//  Does not work :(
+//
+//    final ElementMatcher.Junction<NamedElement> uselessCheckerTypeDef = named("com.sun.tools.xjc.reader.xmlschema.UnusedCustomizationChecker");
+//
+//    final AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, module) ->
+//      builder.method(checkMethod).intercept(MethodDelegation.to(UselessCustomizationCheckerInterceptor.class));
+//
+//    AgentBuilder bldr = new AgentBuilder.Default()
+//      .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+//      .type(uselessCheckerTypeDef)
+//      .transform(transformer);
+//
+//    ResettableClassFileTransformer installOn = bldr.installOn(ByteBuddyAgent.getInstrumentation());
+
+    // need to shuffle through component customizations
+
+    new ByteBuddy()
+      .redefine(CCustomizations.class)
+      .visit(Advice.to(CCustomisationSetterInterceptor.class).on(ElementMatchers.named("setParent")))
+      .visit(Advice.to(CCustomisationConstructorInterceptor.class).on(ElementMatchers.isConstructor()))
+      .make()
+      .load(getClass().getClassLoader(), ClassReloadingStrategy.fromInstalledAgent())
+      .getLoaded();
+
+
+    // and also ack BIXPluginCustomizations that are otherwise turned into errors by the useless checker junk
+
+    final Class<?> uselessCheckerType = getClass().getClassLoader().loadClass("com.sun.tools.xjc.reader.xmlschema.UnusedCustomizationChecker");
+
+    new ByteBuddy()
+      .redefine(uselessCheckerType)
+      .visit(Advice.to(UselessCustomizationCheckerInterceptor.class).on(named("check").and(takesArguments(2))))
+      .make()
+      .load(getClass().getClassLoader(), ClassReloadingStrategy.fromInstalledAgent())
+      .getLoaded();
+
   }
 
   @Override
@@ -134,22 +186,6 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
     for (CPropertyInfo property : classInfo.getProperties()) {
       property.accept(new AdapterCustomizer(model, inspector));
     }
-
-  }
-
-  @Override
-  public boolean run(Outline outline, Options opt) {
-
-    // dirty hack to find any customizations from prior episodes https://github.com/eclipse-ee4j/jaxb-ri/issues/1319
-    Model model = outline.getModel();
-    for (TypeUse use : model.typeUses().values()) {
-      CNonElement element = use.getInfo();
-      if (!Utils.findCustomizations(element, COMPLEX_XML_ADAPTER_NAME).isEmpty() && opt.debugMode) {
-        logger.info(String.format("acknowledge customization %s on %s", COMPLEX_XML_ADAPTER, element.getTypeName()));
-      }
-    }
-
-    return true;
 
   }
 
