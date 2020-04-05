@@ -18,8 +18,9 @@ usage:
 	@printf "  make install           $(GREEN)# Test and install the local project $(NC)\n"
 	@printf "  make prepare           $(GREEN)# Test and tag a release $(NC)\n"
 	@printf "  make patch             $(GREEN)# Bump minor version and push upstream $(NC)\n"
-	@printf "  make release           $(GREEN)# Build the software and uploads it into the artifact repository$(NC)\n\n"
-	@exit 1
+	@printf "  make release           $(GREEN)# Build the software and uploads it into the artifact repository$(NC)\n"
+	@printf "  make release-snapshot  $(GREEN)# Build the software and uploads it into the testing artifact repository$(NC)\n\n"
+	@exit 0
 
 # ---- defaults and macros ---------------------------------------------------------------------------------------------
 
@@ -83,5 +84,11 @@ patch:
 .PHONY: release
 release:
 	$(info release v$(VERSION))
-	@mvn -Drevision=$(VERSION) $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh $(MAVEN_CLI_OPTS)
+	@mvn -Drevision=$(VERSION) $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh
+
+# releases a snapshot into the testing artifact repository
+.PHONY: release-snapshot
+release-snapshot:
+	$(info release v$(VERSION)-SNAPSHOT)
+	@mvn $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh
 
