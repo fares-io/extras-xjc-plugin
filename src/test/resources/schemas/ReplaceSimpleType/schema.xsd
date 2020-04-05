@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 Niels Bertram
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<xsd:schema targetNamespace="urn:replacesimpletype.test"
+            xmlns:tns="urn:replacesimpletype.test"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+            xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+            xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
+            elementFormDefault="qualified"
+            jaxb:version="2.1"
+            jaxb:extensionBindingPrefixes="xjc extras">
+
+  <xsd:annotation>
+    <xsd:appinfo>
+      <jaxb:globalBindings fixedAttributeAsConstantProperty="true">
+        <xjc:javaType name="java.time.OffsetDateTime"
+                      xmlType="xsd:dateTime"
+                      adapter="test.time.OffsetDateTimeAdapter"/>
+      </jaxb:globalBindings>
+    </xsd:appinfo>
+  </xsd:annotation>
+
+  <xsd:complexType name="Book">
+        <xsd:sequence>
+          <xsd:element name="isbn" type="xsd:string" />
+          <xsd:element name="overrideElement" type="xsd:dateTime">
+            <xsd:annotation>
+              <xsd:appinfo>
+                <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+              </xsd:appinfo>
+            </xsd:annotation>
+          </xsd:element>
+          <xsd:element name="extendElement">
+            <xsd:annotation>
+              <xsd:appinfo>
+                <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+              </xsd:appinfo>
+            </xsd:annotation>
+            <xsd:complexType>
+              <xsd:simpleContent>
+                <xsd:extension base="xsd:dateTime">
+                  <xsd:attribute name="flag" type="xsd:boolean" />
+                </xsd:extension>
+              </xsd:simpleContent>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute  name="overrideAttribute" type="xsd:dateTime">
+          <xsd:annotation>
+            <xsd:appinfo>
+              <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+            </xsd:appinfo>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute ref="tns:refAttribute1">
+          <xsd:annotation>
+            <xsd:appinfo>
+              <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+            </xsd:appinfo>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute ref="tns:refAttribute2">
+          <xsd:annotation>
+            <xsd:appinfo>
+              <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+            </xsd:appinfo>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attributeGroup ref="tns:attrGroup"/>
+  </xsd:complexType>
+
+  <xsd:attribute name="refAttribute1" type="xsd:dateTime"/>
+  <xsd:attribute name="refAttribute2" type="xsd:string"/>
+
+  <xsd:attributeGroup name="attrGroup">
+    <xsd:attribute name="groupAttribute1" type="xsd:string">
+      <xsd:annotation>
+        <xsd:appinfo>
+          <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+        </xsd:appinfo>
+      </xsd:annotation>
+    </xsd:attribute>
+  </xsd:attributeGroup>
+
+</xsd:schema>

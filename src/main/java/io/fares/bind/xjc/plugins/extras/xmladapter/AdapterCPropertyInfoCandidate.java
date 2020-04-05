@@ -15,11 +15,11 @@
  */
 package io.fares.bind.xjc.plugins.extras.xmladapter;
 
-import com.sun.tools.xjc.model.CElementPropertyInfo;
+import com.sun.tools.xjc.model.CPropertyInfo;
 
-public class AdapterCPropertyInfoCandidate extends AdapterCandidate<CElementPropertyInfo> {
+public class AdapterCPropertyInfoCandidate extends AdapterCandidate<CPropertyInfo> {
 
-  public AdapterCPropertyInfoCandidate(CElementPropertyInfo element) {
+  public AdapterCPropertyInfoCandidate(CPropertyInfo element) {
     super(element);
   }
 

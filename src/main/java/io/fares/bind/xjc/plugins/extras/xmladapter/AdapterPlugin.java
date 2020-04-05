@@ -26,6 +26,8 @@ import net.bytebuddy.asm.Advice;
 import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 
 import javax.xml.namespace.QName;
@@ -39,6 +41,8 @@ import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
 public class AdapterPlugin extends AbstractParameterizablePlugin {
+
+  private static final Logger log = LoggerFactory.getLogger(AdapterPlugin.class.getPackage().getName() + ".report");
 
   public static final String NS = "http://jaxb2-commons.dev.java.net/xjc/extras";
 
@@ -118,36 +122,36 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
 
     // report
 
-    logger.info("scanning for XMLAdapter candidates");
+    logReport("2020.3 scanning for XMLAdapter candidates");
 
     Map<String, Stack<AdapterCandidate>> types = inspector.getTypeCandidates();
     Map<String, Stack<AdapterCandidate>> fields = inspector.getFieldCandidates();
 
-    for (Map.Entry<String, Stack<AdapterCandidate>> entry : types.entrySet()) {
+    for (Map.Entry<String, Stack<AdapterCandidate>> typeElement : types.entrySet()) {
 
-      if (!entry.getValue().isEmpty()) {
+      if (!typeElement.getValue().isEmpty()) {
 
-        logger.info("");
-        logger.info(format("XMLAdapter: %s", entry.getKey()));
-        logger.info("");
-        logger.info("Registered Types:");
+        logReport("");
+        logReport("XMLAdapter: {}", typeElement.getKey());
+        logReport("");
+        logReport("Registered Types:");
 
-        for (AdapterCandidate candidate : entry.getValue()) {
-          logger.info(format(" [+]: %s", candidate.getName()));
+        for (AdapterCandidate candidate : typeElement.getValue()) {
+          logReport(format("   [+]: %s", candidate.getName()));
         }
 
       }
 
-      if (fields.containsKey(entry.getKey())) {
+      if (fields.containsKey(typeElement.getKey())) {
 
-        logger.info("");
-        logger.info(" Field Candidates:");
+        logReport("");
+        logReport(" Field Candidates:");
 
-        for (AdapterCandidate candidate : fields.get(entry.getKey())) {
-          logger.info(format(" [+]: %s", candidate.getName()));
+        for (AdapterCandidate candidate : fields.get(typeElement.getKey())) {
+          logReport("   [+]: {}", candidate.getName());
         }
 
-        logger.info(format(" %s candidate(s) being considered", fields.get(entry.getKey()).size()));
+        logReport("   {} candidate(s) being considered", fields.get(typeElement.getKey()).size());
 
       }
 
@@ -157,27 +161,29 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
 
       if (!types.containsKey(entry.getKey()) && !entry.getValue().isEmpty()) {
 
-        logger.info("");
-        logger.info(format("XMLAdapter: %s", entry.getKey()));
-        logger.info("");
-        logger.info("Field Candidates:");
+        logReport("");
+        logReport("XMLAdapter: {}", entry.getKey());
+        logReport("");
+        logReport("Field Candidates:");
 
         for (AdapterCandidate candidate : fields.get(entry.getKey())) {
-          logger.info(format(" [+]: %s", candidate.getName()));
+          logReport("   [+]: {}", candidate.getName());
         }
 
-        logger.info(format(" %s candidate(s) being considered", fields.get(entry.getKey()).size()));
-
+        logReport("   {} candidate(s) being considered", fields.get(entry.getKey()).size());
 
       }
 
     }
 
-    logger.info("");
+    logReport("");
 
+    logReport("XMLAdapter modifications:");
     for (final CClassInfo classInfo : model.beans().values()) {
       postProcessClassInfo(model, inspector, classInfo);
     }
+
+    logReport("");
 
   }
 
@@ -187,6 +193,16 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
       property.accept(new AdapterCustomizer(model, inspector));
     }
 
+  }
+
+  public static void logReport(String format, Object... arguments) {
+    if (log.isInfoEnabled()) {
+      log.info(format, arguments);
+    }
+  }
+
+  public static void logError(String format, Object... arguments) {
+    log.error(format, arguments);
   }
 
 }
