@@ -34,6 +34,13 @@
           <xsd:element name="isbn" type="xsd:string" />
           <xsd:element name="price" type="tns:Amount" />
         </xsd:sequence>
+        <xsd:attribute  name="datePublished" type="xsd:dateTime">
+          <xsd:annotation>
+            <xsd:appinfo>
+              <extras:xml-adapter name="test.time.LocalDateTimeAdapter"/>
+            </xsd:appinfo>
+          </xsd:annotation>
+        </xsd:attribute>
   </xsd:complexType>
 
   <xsd:element name="Amount" type="tns:Amount"/>

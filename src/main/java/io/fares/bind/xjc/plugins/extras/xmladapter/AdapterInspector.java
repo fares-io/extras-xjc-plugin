@@ -93,6 +93,28 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
   }
 
   @Override
+  public CPropertyInfo onAttribute(CAttributePropertyInfo propertyInfo) {
+
+    List<CPluginCustomization> elementCustomizations = Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
+
+    if (!elementCustomizations.isEmpty()) {
+      trackCustomizations(propertyInfo, elementCustomizations);
+    }
+
+    for (CTypeInfo ref : propertyInfo.ref()) {
+
+      List<CPluginCustomization> typeCustomizations = Utils.findCustomizations(ref, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
+
+      if (!typeCustomizations.isEmpty()) {
+        trackCustomizations(propertyInfo, ref, typeCustomizations);
+      }
+
+    }
+
+    return null;
+  }
+
+  @Override
   public CPropertyInfo onReference(CReferencePropertyInfo propertyInfo) {
     List<CPluginCustomization> c = Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
     if (!c.isEmpty()) {
@@ -101,7 +123,7 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
     return null;
   }
 
-  private void trackCustomizations(CElementPropertyInfo propertyInfo, List<CPluginCustomization> customizations) {
+  private void trackCustomizations(CPropertyInfo propertyInfo, List<CPluginCustomization> customizations) {
 
     for (CPluginCustomization customization : customizations) {
 
@@ -127,7 +149,7 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
   }
 
-  private void trackCustomizations(CElementPropertyInfo propertyInfo, CTypeInfo ref, List<CPluginCustomization> customizations) {
+  private void trackCustomizations(CPropertyInfo propertyInfo, CTypeInfo ref, List<CPluginCustomization> customizations) {
 
     for (CPluginCustomization customization : customizations) {
 
@@ -189,11 +211,6 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
   @Override
   public CClassInfo onPackage(JPackage pkg) {
-    return null;
-  }
-
-  @Override
-  public CPropertyInfo onAttribute(CAttributePropertyInfo p) {
     return null;
   }
 

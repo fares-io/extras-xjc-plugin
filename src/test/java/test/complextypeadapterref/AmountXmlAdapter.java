@@ -34,11 +34,11 @@ public class AmountXmlAdapter extends XmlAdapter<Amount, MonetaryAmount> {
   public Amount marshal(MonetaryAmount v) {
 
     CurrencyUnit currency = v.getCurrency();
-    Amount amout = new Amount();
-    amout.setCurrency(currency.getCurrencyCode());
-    amout.setValue(v.getNumber().numberValue(BigDecimal.class).setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN));
+    Amount amount = new Amount();
+    amount.setCurrency(currency.getCurrencyCode());
+    amount.setValue(v.getNumber().numberValue(BigDecimal.class).setScale(currency.getDefaultFractionDigits(), RoundingMode.HALF_EVEN));
 
-    return amout;
+    return amount;
 
   }
 
