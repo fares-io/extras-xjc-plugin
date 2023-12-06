@@ -19,7 +19,7 @@ package io.fares.bind.xjc.plugins.extras.testing;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.jvnet.mjiip.v_2.XJC2Mojo;
+import org.jvnet.jaxb.maven.XJC2Mojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

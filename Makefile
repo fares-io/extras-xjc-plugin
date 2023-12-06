@@ -18,8 +18,9 @@ usage:
 	@printf "  make install           $(GREEN)# Test and install the local project $(NC)\n"
 	@printf "  make prepare           $(GREEN)# Test and tag a release $(NC)\n"
 	@printf "  make patch             $(GREEN)# Bump minor version and push upstream $(NC)\n"
-	@printf "  make release           $(GREEN)# Build the software and uploads it into the artifact repository$(NC)\n\n"
-	@exit 1
+	@printf "  make snapshot          $(GREEN)# Build a snapshot version of the software and uploads it into the artifact repository$(NC)\n\n"
+	@printf "  make release           $(GREEN)# Build a release version of the software and uploads it into the artifact repository$(NC)\n\n"
+	@exit 0
 
 # ---- defaults and macros ---------------------------------------------------------------------------------------------
 
@@ -78,6 +79,12 @@ patch:
 	$(info Patching local branch $(shell git symbolic-ref --short HEAD) for version $(VERSION))
 	@bumpversion patch
 	@git push --verbose -u origin '$(BRANCH)'
+
+# releases the snapshot revision into the artifact repository
+.PHONY: snapshot
+snapshot:
+	$(info release v$(VERSION)-SNAPSHOT)
+	@mvn -Drevision=$(VERSION)-SNAPSHOT $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh $(MAVEN_CLI_OPTS)
 
 # releases the revision into the artifact repository
 .PHONY: release

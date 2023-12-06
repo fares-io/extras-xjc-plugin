@@ -17,8 +17,9 @@ package io.fares.bind.xjc.plugins.extras;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
-import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
+import io.fares.bind.xjc.plugins.extras.xmladapter.AdapterPlugin;
+import org.jvnet.jaxb.maven.AbstractXJC2Mojo;
+import org.jvnet.jaxb.maven.test.RunXJC2Mojo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public abstract class AbstractPluginTest extends RunXJC2Mojo {
 
-  AbstractXJC2Mojo mojoUnderTest;
+  AbstractXJC2Mojo<AdapterPlugin> mojoUnderTest;
 
   @Override
   public void testExecute() throws Exception {

@@ -8,9 +8,10 @@ Add this library to the JAXB compiler plugin and activate the respective plugins
 
 ```xml
 <plugin>
-  <groupId>org.jvnet.jaxb2.maven2</groupId>
-  <artifactId>maven-jaxb2-plugin</artifactId>
+  <groupId>org.jvnet.jaxb</groupId>
+  <artifactId>jaxb-maven-plugin</artifactId>
   <configuration>
+    <extension>true</extension>
     <plugins>
       <plugin>
         <groupId>io.fares.bind.xjc.plugins</groupId>
@@ -18,7 +19,6 @@ Add this library to the JAXB compiler plugin and activate the respective plugins
         <version>0.0.5</version>
       </plugin>
     </plugins>
-    <extension>true</extension>
     <args>
       <arg>-Xxml-adapter</arg>
     </args>
