@@ -70,9 +70,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <jaxb.version>2.3.9</jaxb.version>
+    <jaxb.version>4.0.4</jaxb.version>
     <xalan.version>2.7.3</xalan.version>
-    <jaxb.plugin.version>2.0.9</jaxb.plugin.version>
+    <jaxb.plugin.version>4.0.0</jaxb.plugin.version>
     <guava.version>32.0.0-jre</guava.version>
     <bytebuddy.version>1.9.12</bytebuddy.version>
     <slf4j.version>1.7.36</slf4j.version>
@@ -83,7 +83,7 @@
   <dependencies>
     <dependency>
       <groupId>org.jvnet.jaxb</groupId>
-      <artifactId>jaxb2-basics-tools</artifactId>
+      <artifactId>jaxb-plugins-tools</artifactId>
     </dependency>
     <dependency>
       <!-- only needed for a hack to get all customizations -->
@@ -143,11 +143,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-artifact</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.money</groupId>
       <artifactId>money-api</artifactId>
       <scope>test</scope>
@@ -172,17 +167,12 @@
     <!-- region interop testing-->
     <dependency>
       <groupId>org.jvnet.jaxb</groupId>
-      <artifactId>jaxb2-basics</artifactId>
+      <artifactId>jaxb-plugins</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jvnet.jaxb</groupId>
-      <artifactId>jaxb-basics-annotate</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.fbdo</groupId>
-      <artifactId>jaxb2-fixed-value</artifactId>
+      <artifactId>jaxb-annox</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- endregion -->
@@ -190,11 +180,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>3.5.1</version>
-      </dependency>
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
@@ -227,34 +212,8 @@
       <!-- region commons plugin -->
       <dependency>
         <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>jaxb2-basics-tools</artifactId>
+        <artifactId>jaxb-plugins-tools</artifactId>
         <version>${jaxb.plugin.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>maven-jaxb-plugin-core</artifactId>
-        <version>${jaxb.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>txw2</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.jvnet.jaxb.maven</groupId>
-        <artifactId>jaxb-maven-plugin</artifactId>
-        <version>${jaxb.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-xjc-jdk9</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.jvnet.jaxb</groupId>
@@ -304,11 +263,6 @@
         <version>3.25.5</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.maven</groupId>
-        <artifactId>maven-artifact</artifactId>
-        <version>2.2.1</version>
-      </dependency>
-      <dependency>
         <groupId>javax.money</groupId>
         <artifactId>money-api</artifactId>
         <version>1.1</version>
@@ -322,24 +276,13 @@
       <!-- region interop testing -->
       <dependency>
         <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>jaxb2-basics</artifactId>
+        <artifactId>jaxb-plugins</artifactId>
         <version>${jaxb.plugin.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>jaxb-basics-annotate</artifactId>
+        <artifactId>jaxb-annox</artifactId>
         <version>${jaxb.plugin.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.fbdo</groupId>
-        <artifactId>jaxb2-fixed-value</artifactId>
-        <version>1.2</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-xjc</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <!-- endregion -->
     </dependencies>

@@ -24,7 +24,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.type.Type;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 public class ReplaceSimpleTypeAdapterValidator extends TestValidator {
 

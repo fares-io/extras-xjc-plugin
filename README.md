@@ -45,11 +45,11 @@ To override the default adapter binding just add the `extras:xml-adapter` annota
 ```xml
 <xsd:schema targetNamespace="urn:replacesimpletype.test"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-            xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+            xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+			      xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
             xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
             elementFormDefault="qualified"
-            jaxb:version="2.1"
+            jaxb:version="3.0"
             jaxb:extensionBindingPrefixes="xjc extras">
 
   <xsd:annotation>
@@ -123,9 +123,9 @@ Below example will attach a customisation to the complex type that we want to ma
 <xsd:schema targetNamespace="urn:complextypeadapter.test"
             xmlns:tns="urn:complextypeadapter.test"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+            xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
             xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
-            jaxb:version="2.1"
+            jaxb:version="3.0"
             jaxb:extensionBindingPrefixes="extras">
 
   <xsd:element name="Amount" type="tns:Amount"/>

@@ -20,7 +20,7 @@ import com.sun.tools.xjc.model.nav.NType;
 import io.fares.bind.xjc.plugins.extras.Utils;
 import org.w3c.dom.Element;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.Stack;
@@ -106,7 +106,7 @@ public class AdapterCustomizer implements CPropertyVisitor<CPropertyInfo> {
       if (XmlAdapter.class.isAssignableFrom(adapterClass)) {
         return (Class<XmlAdapter>) adapterClass;
       } else {
-        throw new IllegalArgumentException("adapter class " + adapterClassName + " does not extend javax.xml.bind.annotation.adapters.XmlAdapter");
+        throw new IllegalArgumentException("adapter class " + adapterClassName + " does not extend jakarta.xml.bind.annotation.adapters.XmlAdapter");
       }
 
     } catch (ClassNotFoundException e) {

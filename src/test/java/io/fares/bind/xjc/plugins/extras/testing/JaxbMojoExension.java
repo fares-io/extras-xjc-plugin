@@ -19,7 +19,7 @@ package io.fares.bind.xjc.plugins.extras.testing;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.jvnet.jaxb.maven.XJC2Mojo;
+import org.jvnet.jaxb.maven.XJCMojo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +39,9 @@ public class JaxbMojoExension implements BeforeAllCallback {
 
   private final Path generatePath;
 
-  private final XJC2Mojo mojo;
+  private final XJCMojo mojo;
 
-  public JaxbMojoExension(Path resourcePath, Path generatePath, XJC2Mojo mojo) {
+  public JaxbMojoExension(Path resourcePath, Path generatePath, XJCMojo mojo) {
     this.resourcePath = resourcePath;
     this.generatePath = generatePath;
     this.mojo = mojo;
@@ -160,9 +160,9 @@ public class JaxbMojoExension implements BeforeAllCallback {
       return build(null);
     }
 
-    public JaxbMojoExension build(Consumer<XJC2Mojo> mojoConfigurer) {
+    public JaxbMojoExension build(Consumer<XJCMojo> mojoConfigurer) {
 
-      XJC2Mojo mojo = new XJC2Mojo();
+      XJCMojo mojo = new XJCMojo();
 
       mojo.setProject(new MavenProject());
 

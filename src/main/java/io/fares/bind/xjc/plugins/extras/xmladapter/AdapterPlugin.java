@@ -25,7 +25,7 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
 import net.bytebuddy.matcher.ElementMatchers;
-import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
+import org.jvnet.jaxb.plugin.AbstractParameterizablePlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
@@ -196,6 +196,7 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
   }
 
   public static void logReport(String format, Object... arguments) {
+
     if (log.isInfoEnabled()) {
       log.info(format, arguments);
     }
