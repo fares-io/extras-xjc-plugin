@@ -44,7 +44,7 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
 
   private static final Logger log = LoggerFactory.getLogger(AdapterPlugin.class.getPackage().getName() + ".report");
 
-  public static final String NS = "http://jaxb2-commons.dev.java.net/xjc/extras";
+  public static final String NS = "urn:jaxb.fares.io:extras";
 
   public static final String COMPLEX_XML_ADAPTER = "xml-adapter";
 

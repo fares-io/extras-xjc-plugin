@@ -19,7 +19,7 @@
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
             xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
-            xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
+            xmlns:extras="urn:jaxb.fares.io:extras"
             elementFormDefault="qualified"
             jaxb:version="3.0"
             jaxb:extensionBindingPrefixes="xjc extras">

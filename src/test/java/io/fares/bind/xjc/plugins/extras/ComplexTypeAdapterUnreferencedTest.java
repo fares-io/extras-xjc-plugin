@@ -18,7 +18,7 @@ package io.fares.bind.xjc.plugins.extras;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import io.fares.bind.xjc.plugins.extras.testing.JaxbMojoExension;
+import io.fares.bind.xjc.plugins.extras.testing.JaxbMojoExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ComplexTypeAdapterUnreferencedTest {
 
   @RegisterExtension
-  static JaxbMojoExension MOJO = JaxbMojoExension.builder()
+  static JaxbMojoExtension MOJO = JaxbMojoExtension.builder()
     .verbose()
     .arg("-Xxml-adapter")
     .build();

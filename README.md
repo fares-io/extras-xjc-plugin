@@ -47,7 +47,7 @@ To override the default adapter binding just add the `extras:xml-adapter` annota
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
 			      xmlns:xjc ="http://java.sun.com/xml/ns/jaxb/xjc"
-            xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
+            xmlns:extras="urn:jaxb.fares.io:extras"
             elementFormDefault="qualified"
             jaxb:version="3.0"
             jaxb:extensionBindingPrefixes="xjc extras">
@@ -124,7 +124,7 @@ Below example will attach a customisation to the complex type that we want to ma
             xmlns:tns="urn:complextypeadapter.test"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
             xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
-            xmlns:extras="http://jaxb2-commons.dev.java.net/xjc/extras"
+            xmlns:extras="urn:jaxb.fares.io:extras"
             jaxb:version="3.0"
             jaxb:extensionBindingPrefixes="extras">
 

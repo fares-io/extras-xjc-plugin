@@ -31,9 +31,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-public class JaxbMojoExension implements BeforeAllCallback {
+public class JaxbMojoExtension implements BeforeAllCallback {
 
-  private static final Logger log = LoggerFactory.getLogger(JaxbMojoExension.class);
+  private static final Logger log = LoggerFactory.getLogger(JaxbMojoExtension.class);
 
   private final Path resourcePath;
 
@@ -41,7 +41,7 @@ public class JaxbMojoExension implements BeforeAllCallback {
 
   private final XJCMojo mojo;
 
-  public JaxbMojoExension(Path resourcePath, Path generatePath, XJCMojo mojo) {
+  public JaxbMojoExtension(Path resourcePath, Path generatePath, XJCMojo mojo) {
     this.resourcePath = resourcePath;
     this.generatePath = generatePath;
     this.mojo = mojo;
@@ -156,11 +156,11 @@ public class JaxbMojoExension implements BeforeAllCallback {
       return this;
     }
 
-    public JaxbMojoExension build() {
+    public JaxbMojoExtension build() {
       return build(null);
     }
 
-    public JaxbMojoExension build(Consumer<XJCMojo> mojoConfigurer) {
+    public JaxbMojoExtension build(Consumer<XJCMojo> mojoConfigurer) {
 
       XJCMojo mojo = new XJCMojo();
 
@@ -187,7 +187,7 @@ public class JaxbMojoExension implements BeforeAllCallback {
       Path basedir = baseDir();
 
       if (log.isDebugEnabled()) {
-        log.debug("executing jaxb2 mojo in working directory {}", basedir.toAbsolutePath().toString());
+        log.debug("executing jaxb mojo in working directory {}", basedir.toAbsolutePath());
       }
 
       Path resourcePath = basedir.resolve(resourcesLocation);
@@ -196,7 +196,7 @@ public class JaxbMojoExension implements BeforeAllCallback {
 
       // endregion
 
-      return new JaxbMojoExension(resourcePath, generatePath, mojo);
+      return new JaxbMojoExtension(resourcePath, generatePath, mojo);
 
     }
 
