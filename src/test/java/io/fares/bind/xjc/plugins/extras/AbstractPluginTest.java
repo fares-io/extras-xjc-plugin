@@ -17,20 +17,31 @@ package io.fares.bind.xjc.plugins.extras;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import io.fares.bind.xjc.plugins.extras.xmladapter.AdapterPlugin;
+import com.sun.tools.xjc.Options;
 import org.jvnet.jaxb.maven.AbstractXJCMojo;
 import org.jvnet.jaxb.maven.test.RunXJCMojo;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractPluginTest extends RunXJCMojo {
 
-  AbstractXJCMojo<AdapterPlugin> mojoUnderTest;
+  AbstractXJCMojo<Options> mojoUnderTest;
 
   @Override
+  @Test
   public void testExecute() throws Exception {
 
     super.testExecute();
@@ -40,9 +51,9 @@ public abstract class AbstractPluginTest extends RunXJCMojo {
 
     final File clazzFile = getClassFile(genDir);
 
-    assertNotNull("class file was null", clazzFile);
-    assertTrue("class file " + clazzFile.toString() + " does not exist", clazzFile.exists());
-    assertTrue("class file " + clazzFile.toString() + " is no file", clazzFile.isFile());
+    assertNotNull(clazzFile, "class file was null");
+    assertTrue(clazzFile.exists(), "class file " + clazzFile + " does not exist");
+    assertTrue(clazzFile.isFile(), "class file " + clazzFile + " is no file");
 
     try {
 
@@ -51,18 +62,27 @@ public abstract class AbstractPluginTest extends RunXJCMojo {
       TestValidator validator = getValidator();
       validator.visit(unit, null);
 
-      assertTrue("Could not validate", validator.isFound());
+      assertTrue(validator.isFound(), "Could not validate");
 
     } catch (FileNotFoundException e) {
-      fail("not expecting parse failures");
+      throw new AssertionError("Could not parse generated source: " + clazzFile, e);
     }
 
   }
 
   @Override
-  protected void configureMojo(AbstractXJCMojo mojo) {
+  protected void configureMojo(AbstractXJCMojo<Options> mojo) {
     super.configureMojo(mojo);
-    mojo.setForceRegenerate(true);
+    Path generated = mojo.getGenerateDirectory().toPath();
+    if (Files.exists(generated)) {
+      try (Stream<Path> paths = Files.walk(generated)) {
+        for (Path path : paths.sorted(Comparator.reverseOrder()).collect(Collectors.toList())) {
+          Files.delete(path);
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("Could not clean generated test sources: " + generated, e);
+      }
+    }
     mojo.setDebug(isDebug());
     this.mojoUnderTest = mojo;
   }

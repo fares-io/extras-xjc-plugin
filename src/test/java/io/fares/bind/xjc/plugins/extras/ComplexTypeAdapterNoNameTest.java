@@ -19,16 +19,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class ComplexTypeAdapterNoNameTest extends AbstractPluginTest {
 
   @Override
-  public void testExecute() throws Exception {
-    try {
-      super.testExecute();
-      fail("should fail with invalid arg");
-    } catch (IllegalArgumentException e) {
-      // expected
-    }
+  @Test
+  public void testExecute() {
+    IllegalArgumentException failure = assertThrows(IllegalArgumentException.class, super::testExecute);
+    assertNotNull(failure.getMessage(), "Generation failure must include a diagnostic");
+    assertTrue(failure.getMessage().contains("must specify the XML adapter class with the name attribute"),
+      "Unexpected generation diagnostic: " + failure.getMessage());
   }
 
   @Override

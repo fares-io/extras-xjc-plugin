@@ -1,0 +1,27 @@
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:badmoney.test"
+  xmlns:t="urn:badmoney.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras">
+  <xs:complexType name="Book">
+    <xs:sequence>
+      <xs:element name="primary" type="t:PrimaryAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PrimaryAmount">
+    <xs:annotation>
+      <xs:appinfo>
+        <extras:xml-adapter name="test.badmoney.LegacyAdapter"/>
+        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

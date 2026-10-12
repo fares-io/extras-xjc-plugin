@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:incompatibleelementadapter.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras">
+  <xsd:complexType name="Book">
+    <xsd:sequence>
+      <xsd:element name="price" type="xsd:string">
+        <xsd:annotation>
+          <xsd:appinfo>
+            <extras:xml-adapter name="test.complextypeadapter.AmountXmlAdapter"/>
+          </xsd:appinfo>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

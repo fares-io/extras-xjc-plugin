@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Just to ack any customizations attached to the type.
+ * Collects XML adapter customizations from XJC classes and properties.
  */
+@SuppressWarnings({"rawtypes"})
 public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, CPropertyVisitor<CPropertyInfo> {
 
   private static final Logger log = LoggerFactory.getLogger(AdapterInspector.class);
@@ -34,10 +35,24 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
   private final Map<String, Stack<AdapterCandidate>> fieldCandidates = new HashMap<>();
 
+  /** Creates an inspector for XML adapter customizations. */
+  public AdapterInspector() {
+  }
+
+  /**
+   * Returns candidates declared on XJC classes.
+   *
+   * @return candidates indexed by adapter class name
+   */
   public Map<String, Stack<AdapterCandidate>> getTypeCandidates() {
     return typeCandidates;
   }
 
+  /**
+   * Returns candidates declared on XJC properties or property types.
+   *
+   * @return candidates indexed by adapter class name
+   */
   public Map<String, Stack<AdapterCandidate>> getFieldCandidates() {
     return fieldCandidates;
   }
@@ -45,11 +60,8 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
   @Override
   public CClassInfo onBean(CClassInfo classInfo) {
 
-    List<CPluginCustomization> customizations = Utils.findCustomizations(classInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-
-    if (!customizations.isEmpty()) {
-      trackCustomizations(classInfo, customizations);
-    }
+    trackCustomizations(classInfo, Utils.findCustomizations(classInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME));
+    trackCustomizations(classInfo, Utils.findCustomizations(classInfo, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME));
 
     // now descend into all the properties
     for (CPropertyInfo p : classInfo.getProperties()) {
@@ -63,19 +75,13 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
   @Override
   public CPropertyInfo onElement(CElementPropertyInfo propertyInfo) {
 
-    List<CPluginCustomization> elementCustomizations = Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-
-    if (!elementCustomizations.isEmpty()) {
-      trackCustomizations(propertyInfo, elementCustomizations);
-    }
+    trackCustomizations(propertyInfo, Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME));
+    trackCustomizations(propertyInfo, Utils.findCustomizations(propertyInfo, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME));
 
     for (CTypeInfo ref : propertyInfo.ref()) {
 
-      List<CPluginCustomization> typeCustomizations = Utils.findCustomizations(ref, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-
-      if (!typeCustomizations.isEmpty()) {
-        trackCustomizations(propertyInfo, ref, typeCustomizations);
-      }
+      trackCustomizations(propertyInfo, ref, Utils.findCustomizations(ref, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME));
+      trackCustomizations(propertyInfo, ref, Utils.findCustomizations(ref, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME));
 
     }
 
@@ -85,9 +91,12 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
   @Override
   public CClassInfo onElement(CElementInfo element) {
-    List<CPluginCustomization> c = Utils.findCustomizations(element, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-    if (!c.isEmpty()) {
-      log.warn("element reference {} has {} unsupported customization attached", element.fullName(), AdapterPlugin.COMPLEX_XML_ADAPTER);
+    for (CPluginCustomization customization : element.getCustomizations()) {
+      if (AdapterPlugin.isSupportedCustomization(customization)) {
+        throw new IllegalArgumentException("Unsupported " + customization.element.getTagName()
+          + " on global element " + element.getElementName()
+          + " at " + Utils.toLocation(customization.locator));
+      }
     }
     return null;
   }
@@ -95,19 +104,13 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
   @Override
   public CPropertyInfo onAttribute(CAttributePropertyInfo propertyInfo) {
 
-    List<CPluginCustomization> elementCustomizations = Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-
-    if (!elementCustomizations.isEmpty()) {
-      trackCustomizations(propertyInfo, elementCustomizations);
-    }
+    trackCustomizations(propertyInfo, Utils.findCustomizations(propertyInfo, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME));
+    trackCustomizations(propertyInfo, Utils.findCustomizations(propertyInfo, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME));
 
     for (CTypeInfo ref : propertyInfo.ref()) {
 
-      List<CPluginCustomization> typeCustomizations = Utils.findCustomizations(ref, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME);
-
-      if (!typeCustomizations.isEmpty()) {
-        trackCustomizations(propertyInfo, ref, typeCustomizations);
-      }
+      trackCustomizations(propertyInfo, ref, Utils.findCustomizations(ref, AdapterPlugin.COMPLEX_XML_ADAPTER_NAME));
+      trackCustomizations(propertyInfo, ref, Utils.findCustomizations(ref, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME));
 
     }
 
@@ -127,22 +130,16 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
     for (CPluginCustomization customization : customizations) {
 
-      Optional<String> adapterName = getAdapterName(customization);
+      Optional<String> adapterName = getAdapterName(customization, generatedType(propertyInfo));
 
       if (!adapterName.isPresent()) {
 
-        log.warn("{} customization on field {} does not specify a name of the adapter", AdapterPlugin.COMPLEX_XML_ADAPTER_NAME, propertyInfo.displayName());
-
-      } else if (!fieldCandidates.containsKey(adapterName.get())) {
-
-        Stack<AdapterCandidate> candidates = new Stack<>();
-        candidates.push(new AdapterCPropertyInfoCandidate(propertyInfo));
-        fieldCandidates.put(adapterName.get(), candidates);
+        log.warn("{} customization on field {} does not specify a name of the adapter", AdapterPlugin.COMPLEX_XML_ADAPTER_NAME,
+          propertyInfo.displayName());
 
       } else {
-
-        Stack<AdapterCandidate> candidates = fieldCandidates.get(adapterName.get());
-        candidates.add(new AdapterCPropertyInfoCandidate(propertyInfo));
+        fieldCandidates.computeIfAbsent(adapterName.get(), name -> new Stack<>())
+          .push(new AdapterCPropertyInfoCandidate(propertyInfo));
       }
 
     }
@@ -153,23 +150,16 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
     for (CPluginCustomization customization : customizations) {
 
-      Optional<String> adapterName = getAdapterName(customization);
+      Optional<String> adapterName = getAdapterName(customization, ref);
 
       if (!adapterName.isPresent()) {
 
-        log.warn("{} customization on field {} does not specify a name of the adapter", AdapterPlugin.COMPLEX_XML_ADAPTER_NAME, propertyInfo.displayName());
-
-      } else if (!fieldCandidates.containsKey(adapterName.get())) {
-
-        Stack<AdapterCandidate> candidates = new Stack<>();
-        candidates.push(new AdapterCPropertyInfoRefCandidate(propertyInfo, ref));
-        fieldCandidates.put(adapterName.get(), candidates);
+        log.warn("{} customization on field {} does not specify a name of the adapter", AdapterPlugin.COMPLEX_XML_ADAPTER_NAME,
+          propertyInfo.displayName());
 
       } else {
-
-        Stack<AdapterCandidate> candidates = fieldCandidates.get(adapterName.get());
-        candidates.add(new AdapterCPropertyInfoRefCandidate(propertyInfo, ref));
-
+        fieldCandidates.computeIfAbsent(adapterName.get(), name -> new Stack<>())
+          .push(new AdapterCPropertyInfoRefCandidate(propertyInfo, ref));
       }
 
     }
@@ -180,31 +170,40 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
     for (CPluginCustomization customization : customizations) {
 
-      Optional<String> adapterName = getAdapterName(customization);
+      Optional<String> adapterName = getAdapterName(customization, classInfo);
 
       if (!adapterName.isPresent()) {
 
-        log.warn("{} customization on class {} does not specify a name of the adapter", AdapterPlugin.COMPLEX_XML_ADAPTER_NAME, classInfo.fullName());
-
-      } else if (!typeCandidates.containsKey(adapterName.get())) {
-
-        Stack<AdapterCandidate> candidates = new Stack<>();
-        candidates.push(new AdapterCClassInfoCandidate(classInfo));
-        typeCandidates.put(adapterName.get(), candidates);
+        log.warn("{} customization on class {} does not specify a name of the adapter",
+          AdapterPlugin.COMPLEX_XML_ADAPTER_NAME, classInfo.fullName());
 
       } else {
-
-        Stack<AdapterCandidate> candidates = typeCandidates.get(adapterName.get());
-        candidates.add(new AdapterCClassInfoCandidate(classInfo));
+        typeCandidates.computeIfAbsent(adapterName.get(), name -> new Stack<>())
+          .push(new AdapterCClassInfoCandidate(classInfo));
       }
 
     }
 
   }
 
-  private Optional<String> getAdapterName(CPluginCustomization customization) {
-    return Optional.ofNullable(customization.element.getAttribute("name"))
+  private Optional<String> getAdapterName(CPluginCustomization customization, CTypeInfo generatedType) {
+    Optional<String> explicitName = Optional.ofNullable(customization.element.getAttribute("name"))
       .filter(s -> !"".equals(s.trim()));
+    if (explicitName.isPresent()) {
+      return explicitName;
+    }
+    if (Utils.matchesCustomization(customization, AdapterPlugin.JAVA_MONEY_ADAPTER_NAME)
+      && (generatedType instanceof CClassInfo || generatedType instanceof CClassRef)) {
+      return Optional.of(generatedType.getType().fullName() + "XmlAdapter");
+    }
+    return Optional.empty();
+  }
+
+  private CTypeInfo generatedType(CPropertyInfo propertyInfo) {
+    if (propertyInfo.ref().size() == 1) {
+      return propertyInfo.ref().iterator().next();
+    }
+    return null;
   }
 
   // region not used
@@ -222,5 +221,3 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
   // endregion
 
 }
-
-

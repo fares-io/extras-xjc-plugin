@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:generatedmoney.test"
+  xmlns:t="urn:generatedmoney.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras"
+  elementFormDefault="qualified">
+  <xs:element name="Book" type="t:Book"/>
+  <xs:complexType name="Book">
+    <xs:sequence>
+      <xs:element name="price" type="t:PrimaryAmount"/>
+      <xs:element name="fee" type="t:SecondaryAmount" minOccurs="0"/>
+      <xs:element name="extras" type="t:PrimaryAmount" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="child" type="t:TertiaryAmount" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PrimaryAmount">
+    <xs:annotation>
+      <xs:appinfo>
+        <extras:java-money-adapter/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="SecondaryAmount">
+    <xs:annotation>
+      <xs:appinfo>
+        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions" currencyProperty="currencyCode" valueProperty="value"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currencyCode" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="TertiaryAmount">
+    <xs:annotation>
+      <xs:appinfo>
+        <extras:java-money-adapter valueProperty="amount"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="amount" type="xs:decimal"/>
+      <xs:element name="currency" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

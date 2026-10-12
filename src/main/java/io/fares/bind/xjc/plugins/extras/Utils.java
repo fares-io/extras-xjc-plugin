@@ -27,14 +27,31 @@ import javax.xml.namespace.QName;
 import java.util.LinkedList;
 import java.util.List;
 
+/** Provides common helpers for XJC model customizations. */
 public class Utils {
 
   private static final String XML_NAMESPACE = "xmlns";
 
+  /** Creates XJC customization helpers. */
+  public Utils() {
+  }
+
+  /**
+   * Finds matching customizations on an XJC model element.
+   * @param customizable the XJC model element
+   * @param name the customization name
+   * @return matching customizations
+   */
   public static List<CPluginCustomization> findCustomizations(CCustomizable customizable, QName name) {
     return findCustomizations(customizable.getCustomizations(), name);
   }
 
+  /**
+   * Finds matching customizations in a collection.
+   * @param customizations the XJC customizations
+   * @param name the customization name
+   * @return matching customizations
+   */
   public static List<CPluginCustomization> findCustomizations(CCustomizations customizations, QName name) {
 
     final List<CPluginCustomization> foundCustomizations = new LinkedList<>();
@@ -50,11 +67,22 @@ public class Utils {
 
   }
 
+  /**
+   * Tests whether a customization has a given qualified name.
+   * @param customization the XJC customization
+   * @param name the expected name
+   * @return true when the name matches
+   */
   public static boolean matchesCustomization(CPluginCustomization customization, QName name) {
     return fixNull(customization.element.getNamespaceURI()).equals(name.getNamespaceURI())
       && fixNull(customization.element.getLocalName()).equals(name.getLocalPart());
   }
 
+  /**
+   * Formats an XML source location.
+   * @param l the XML location
+   * @return the formatted location or {@code unknown}
+   */
   public static String toLocation(Locator l) {
 
     if (l == null) {
@@ -79,11 +107,9 @@ public class Utils {
 
   }
 
-
   /**
    * Starting from a node, find the namespace declaration for a prefix and return the namespace.
-   *
-   * @param node         the node to start searching in
+   * @param node the node to start searching in
    * @param searchPrefix the prefix to search for
    * @return the namespace or <code>null</code> if nothing was found
    */
@@ -119,14 +145,29 @@ public class Utils {
 
   }
 
+  /**
+   * Converts a null string to an empty string.
+   * @param s the string to convert
+   * @return the original string or an empty string
+   */
   public static String fixNull(String s) {
     return s == null ? "" : s;
   }
 
+  /**
+   * Tests whether a string is null or empty.
+   * @param s the string to test
+   * @return true when the string is null or empty
+   */
   public static boolean isEmpty(String s) {
     return s == null || s.length() == 0;
   }
 
+  /**
+   * Tests whether a string has content.
+   * @param s the string to test
+   * @return true when the string has content
+   */
   public static boolean isNotEmpty(String s) {
     return !isEmpty(s);
   }

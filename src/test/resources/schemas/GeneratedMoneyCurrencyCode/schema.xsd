@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="urn:moneycurrencycode.test"
+  targetNamespace="urn:moneycurrencycode.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras"
+  elementFormDefault="qualified">
+  <xsd:element name="Book" type="Book"/>
+  <xsd:complexType name="Book">
+    <xsd:sequence>
+      <xsd:element name="price" type="MoneyAmount"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="CurrencyCode">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[A-Z]{3}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="MoneyAmount">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="currency" type="CurrencyCode" use="required">
+          <xsd:annotation>
+            <xsd:documentation>The ISO 4217 compliant currency code that the amount is nominated in.</xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+</xsd:schema>

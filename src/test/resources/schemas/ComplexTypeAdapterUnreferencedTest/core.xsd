@@ -33,9 +33,6 @@
   <xsd:complexType name="Amount">
     <xsd:annotation>
       <xsd:appinfo>
-        <!-- for the purpose of testing, we map in the Amount or else we could not run the test as the Amount needs
-             to exist before we can compile the adapter -->
-        <jaxb:class ref="test.complextypeadapter.Amount"/>
         <extras:xml-adapter name="test.complextypeadapter.AmountXmlAdapter"/>
       </xsd:appinfo>
     </xsd:annotation>

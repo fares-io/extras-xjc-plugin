@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  version="3.0">
+  <jaxb:bindings schemaLocation="schema.xsd" node="/xsd:schema">
+    <jaxb:bindings node="xsd:complexType[@name=&apos;MoneyAmount&apos;]">
+      <extras:java-money-adapter converter="not-a-class"/>
+    </jaxb:bindings>
+  </jaxb:bindings>
+</jaxb:bindings>

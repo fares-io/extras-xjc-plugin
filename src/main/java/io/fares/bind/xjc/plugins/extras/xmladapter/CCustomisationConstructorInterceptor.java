@@ -17,14 +17,18 @@
 package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.model.CPluginCustomization;
-import io.fares.bind.xjc.plugins.extras.Utils;
 import net.bytebuddy.asm.Advice;
 
 import java.util.Collection;
 
-import static io.fares.bind.xjc.plugins.extras.xmladapter.AdapterPlugin.COMPLEX_XML_ADAPTER_NAME;
-
+/**
+ * Acknowledges XML adapter customizations passed to an XJC customization collection.
+ */
 public class CCustomisationConstructorInterceptor {
+
+  /** Creates an interceptor for XJC customization collection construction. */
+  public CCustomisationConstructorInterceptor() {
+  }
 
   // apply to public CCustomizations(Collection<? extends CPluginCustomization> cPluginCustomizations)
   @Advice.OnMethodEnter
@@ -34,19 +38,17 @@ public class CCustomisationConstructorInterceptor {
       return;
     }
 
-    Collection<?> customizations = (Collection) params[0];
+    Collection<?> customizations = (Collection<?>) params[0];
 
     for (Object o : customizations) {
       if (o instanceof CPluginCustomization) {
         CPluginCustomization c = (CPluginCustomization) o;
-        if (Utils.matchesCustomization(c, COMPLEX_XML_ADAPTER_NAME)) {
-//          System.err.println("ack " + c.element.getTagName() + " -> " + c.toString() + " " + Utils.toLocation(c.locator));
+        if (AdapterPlugin.isSupportedCustomization(c)) {
           c.markAsAcknowledged();
         }
       }
     }
 
   }
-
 
 }

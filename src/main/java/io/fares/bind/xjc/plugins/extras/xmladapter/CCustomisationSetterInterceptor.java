@@ -19,12 +19,16 @@ package io.fares.bind.xjc.plugins.extras.xmladapter;
 import com.sun.tools.xjc.model.CCustomizable;
 import com.sun.tools.xjc.model.CPluginCustomization;
 import com.sun.tools.xjc.model.Model;
-import io.fares.bind.xjc.plugins.extras.Utils;
 import net.bytebuddy.asm.Advice;
 
-import static io.fares.bind.xjc.plugins.extras.xmladapter.AdapterPlugin.COMPLEX_XML_ADAPTER_NAME;
-
+/**
+ * Acknowledges XML adapter customizations when XJC assigns their owner.
+ */
 public class CCustomisationSetterInterceptor {
+
+  /** Creates an interceptor for XJC customization ownership assignment. */
+  public CCustomisationSetterInterceptor() {
+  }
 
   // apply to void setParent(Model model,CCustomizable owner)
   @Advice.OnMethodEnter
@@ -35,8 +39,7 @@ public class CCustomisationSetterInterceptor {
     }
 
     for (CPluginCustomization c : owner.getCustomizations()) {
-      if (Utils.matchesCustomization(c, COMPLEX_XML_ADAPTER_NAME)) {
-//        System.err.println("ack " + c.element.getTagName() + " at " + Utils.toLocation(owner.getLocator()));
+      if (AdapterPlugin.isSupportedCustomization(c)) {
         c.markAsAcknowledged();
       }
     }

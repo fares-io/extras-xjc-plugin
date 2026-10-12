@@ -4,6 +4,8 @@ This plugin provides some extra (missing) XJC features to generated Java Beans.
 
 ## Usage
 
+Build and run this plugin with Java 11 or newer and Maven 3.9.2 or newer.
+
 Add this library to the JAXB compiler plugin and activate the respective plugins.
 
 ```xml
@@ -25,6 +27,10 @@ Add this library to the JAXB compiler plugin and activate the respective plugins
   </configuration>
 </plugin>
 ```
+
+## Logging Compatibility
+
+The project compiles against the SLF4J 1.7 API to expose incompatible SLF4J 2 calls. Plugin hooks use the classic `Logger` and `LoggerFactory` methods. Do not use SLF4J 2 fluent APIs. Logback 1.2 is used only by tests.
 
 ## Add XmlAdapter for Simple Types
 
@@ -97,12 +103,14 @@ To override the default adapter binding just add the `extras:xml-adapter` annota
 
 ```
 
-Note: Annotations on the ref attribute currently do not work
+Place the customization on the local attribute use, including an attribute with `ref`. A customization on the global attribute declaration is not applied to its uses.
 
 
 ## Add XmlAdapter for Complex Types
 
-For some reason, XJC does not allow global bindings of complex types. Below will fail with an error message `com.sun.istack.SAXParseException2: undefined simple type "{urn:complextypeadapter.test}Amount"`:
+### Problem
+
+XJC's `xjc:javaType` global binding supports simple types. Applying it to the complex type `{urn:complextypeadapter.test}Amount` fails with `com.sun.istack.SAXParseException2: undefined simple type`:
 
 ```xml
 <jaxb:globalBindings>
@@ -114,9 +122,11 @@ For some reason, XJC does not allow global bindings of complex types. Below will
 </jaxb:globalBindings>
 ```
 
-Unfortunately XJC does not support custom XJC plugin extensions for `globalBindings`. The best we can do is either attach customisations to a schema or to the target type we want to map.
+### Solution
 
-Below example will attach a customisation to the complex type that we want to map using the `AmountXmlAdapter`. The plugin will process every generated field and if the field is of xml type `c:Amount`, it will attach the `XmlAdapter` as specified in `extras:xml-adapter/@name`. It will also ensure that the type of the field exactly matches the custom type of the `XmlAdapter` to prevent extended types to be wrongly adapted to prevent loss of data.
+Enable `-Xxml-adapter` and attach `extras:xml-adapter` to the complex type in the schema or an external `.xjb` file. The plugin applies the named adapter to properties of that XML type. It checks the adapter's XML type to prevent incompatible mappings.
+
+This example maps `Amount` through `AmountXmlAdapter`:
 
 
 ```xml
@@ -139,7 +149,7 @@ Below example will attach a customisation to the complex type that we want to ma
       <xsd:extension base="xsd:decimal">
         <xsd:attribute name="currency" type="tns:CurrencyCode" use="required">
           <xsd:annotation>
-            <xsd:documentation>The ISO 4217 compliant currency code the currency ammount is nominated in.</xsd:documentation>
+            <xsd:documentation>The ISO 4217 currency code for this amount.</xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
       </xsd:extension>
@@ -158,7 +168,7 @@ Below example will attach a customisation to the complex type that we want to ma
 </xsd:schema>
 ```
 
-When using this type in another schema, the generate a field is of type `javax.money.MonetaryAmount` instead of the corresponding generated XML type and the relevant `@XmlJavaTypeAdapter` annotation is in place.
+A property using `Amount` now exposes `MonetaryAmount` and carries `@XmlJavaTypeAdapter(AmountXmlAdapter.class)`:
 
 
 ```xml
@@ -197,3 +207,50 @@ public class Book {
 
 }
 ```
+
+## JavaMoney Adapters
+
+Enable `-Xxml-adapter` and attach `extras:java-money-adapter` to the complex type or its element property, inline in the schema or through an external `.xjb` file. Generated properties use `javax.money.MonetaryAmount`.
+
+```xml
+<bindings xmlns="https://jakarta.ee/xml/ns/jaxb"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
+          xmlns:extras="urn:jaxb.fares.io:extras"
+          version="3.0"
+          extensionBindingPrefixes="extras">
+  <bindings schemaLocation="model.xsd" node="/xs:schema">
+    <bindings node="xs:complexType[@name='Amount']">
+      <extras:java-money-adapter/>
+    </bindings>
+  </bindings>
+</bindings>
+```
+
+The amount type must contain only a decimal value and a required string currency attribute or element. The value can be decimal simple content or a required decimal child element.
+
+| Attribute | Default |
+|---|---|
+| `currencyProperty` | `currency` |
+| `valueProperty` | Automatic decimal selection |
+| `converter` | Standard JavaMoney conversion |
+
+A property customization takes precedence over its type customization. Both adapter kinds on the same scope are rejected. Direct customizations on reference properties, value properties, or global element declarations are rejected with the component and source location.
+
+Property names refer to the generated Java model. To override them:
+
+```xml
+<extras:java-money-adapter
+  currencyProperty="currencyCode"
+  valueProperty="amount"
+  converter="org.example.money.JavaMoneyAmountAdapter"/>
+```
+
+An explicit value property must exist, be decimal and differ from the currency property. A custom converter provides three public static methods:
+
+```java
+MonetaryAmount of(BigDecimal value, String currency);
+BigDecimal value(MonetaryAmount amount);
+String currency(MonetaryAmount amount);
+```
+
+At runtime, generated bindings need JAXB and JavaMoney. Default conversion requests `MathContext.UNLIMITED` from the application's JavaMoney provider. A configured converter must also be on the runtime classpath. The Extras compiler plugin is not needed at runtime.

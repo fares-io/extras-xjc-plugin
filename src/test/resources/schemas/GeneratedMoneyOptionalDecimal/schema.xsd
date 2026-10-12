@@ -1,0 +1,25 @@
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:badmoney.test"
+  xmlns:t="urn:badmoney.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras">
+  <xs:complexType name="Book">
+    <xs:sequence>
+      <xs:element name="price" type="t:Amount"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Amount">
+    <xs:annotation>
+      <xs:appinfo>
+        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="value" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="currency" type="xs:string" use="required"/>
+  </xs:complexType>
+</xs:schema>

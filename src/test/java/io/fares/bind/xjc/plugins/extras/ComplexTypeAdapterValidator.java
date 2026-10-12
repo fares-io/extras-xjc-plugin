@@ -16,26 +16,27 @@
 package io.fares.bind.xjc.plugins.extras;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
+import io.fares.bind.xjc.plugins.extras.testing.AdapterAssertions;
 
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ComplexTypeAdapterValidator extends TestValidator {
+public class ComplexTypeAdapterValidator extends TestValidator implements AdapterAssertions {
 
-  @Override
-  public void visit(ClassOrInterfaceDeclaration n, Void arg) {
+  private final String priceType;
 
-    super.visit(n, arg);
-
-    FieldDeclaration price = n.getFieldByName("price")
-      .orElseThrow(() -> new IllegalArgumentException("'field price was not found in book"));
-
-    AnnotationExpr xmlAdapterAnnotation = price.getAnnotationByClass(XmlJavaTypeAdapter.class)
-      .orElseThrow(() -> new IllegalArgumentException("'XmlJavaTypeAdapter wad not added to field price in book"));
-
-    found = true;
-
+  public ComplexTypeAdapterValidator(String priceType) {
+    this.priceType = priceType;
   }
 
+  @Override
+  public void visit(ClassOrInterfaceDeclaration declaration, Void arg) {
+    super.visit(declaration, arg);
+    if (!"Book".equals(declaration.getNameAsString())) {
+      return;
+    }
+
+    assertTrue(importsType(declaration, "javax.money.MonetaryAmount"), "Book must import MonetaryAmount");
+    assertMappedField(declaration, "price", priceType, "AmountXmlAdapter");
+    found = true;
+  }
 }

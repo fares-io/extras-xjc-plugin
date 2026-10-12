@@ -18,8 +18,11 @@ package io.fares.bind.xjc.plugins.extras.xmladapter;
 import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.model.CClassInfo;
 import com.sun.tools.xjc.model.CCustomizations;
+import com.sun.tools.xjc.model.CElementInfo;
+import com.sun.tools.xjc.model.CPluginCustomization;
 import com.sun.tools.xjc.model.CPropertyInfo;
 import com.sun.tools.xjc.model.Model;
+import io.fares.bind.xjc.plugins.extras.Utils;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.asm.Advice;
@@ -31,24 +34,59 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 
 import javax.xml.namespace.QName;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Stack;
 
-import static java.lang.String.format;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static net.bytebuddy.matcher.ElementMatchers.takesArguments;
 
+/**
+ * XJC plugin that applies {@code extras:xml-adapter} customizations.
+ */
 public class AdapterPlugin extends AbstractParameterizablePlugin {
 
   private static final Logger log = LoggerFactory.getLogger(AdapterPlugin.class.getPackage().getName() + ".report");
 
+  /** Creates an XML adapter plugin. */
+  public AdapterPlugin() {
+  }
+
+  /**
+   * Namespace for extras customizations.
+   */
   public static final String NS = "urn:jaxb.fares.io:extras";
 
+  /**
+   * Local name of the XML adapter customization.
+   */
   public static final String COMPLEX_XML_ADAPTER = "xml-adapter";
 
+  /**
+   * Qualified name of the XML adapter customization.
+   */
   public static final QName COMPLEX_XML_ADAPTER_NAME = new QName(NS, COMPLEX_XML_ADAPTER);
+
+  /**
+   * Local name of the JavaMoney adapter customisation.
+   *
+   * <p>
+   * {@code currencyProperty} defaults to {@code currency}. The optional
+   * {@code valueProperty} selects the decimal property by its generated Java name.
+   * Without it, the decimal property is selected automatically. Both properties
+   * must belong to the amount type and must differ.
+   *
+   * <pre>{@code
+   * <extras:java-money-adapter currencyProperty="currencyCode" valueProperty="amount"/>
+   * }</pre>
+   */
+  public static final String JAVA_MONEY_ADAPTER = "java-money-adapter";
+
+  /**
+   * Qualified name of the Java money adapter customization.
+   */
+  public static final QName JAVA_MONEY_ADAPTER_NAME = new QName(NS, JAVA_MONEY_ADAPTER);
 
   @Override
   public String getOptionName() {
@@ -62,32 +100,39 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
 
   @Override
   public Collection<QName> getCustomizationElementNames() {
-    return Collections.singletonList(COMPLEX_XML_ADAPTER_NAME);
+    return Arrays.asList(COMPLEX_XML_ADAPTER_NAME, JAVA_MONEY_ADAPTER_NAME);
+  }
+
+  /**
+   * Checks whether a name identifies an adapter customisation supported by this plugin.
+   *
+   * @param name the customisation element name
+   * @return true for XML adapter or JavaMoney adapter customisations
+   */
+  public static boolean isSupportedCustomizationName(QName name) {
+    return COMPLEX_XML_ADAPTER_NAME.equals(name) || JAVA_MONEY_ADAPTER_NAME.equals(name);
+  }
+
+  /**
+   * Checks whether a customization belongs to this plugin.
+   *
+   * @param customization customization to inspect
+   * @return {@code true} when the customization is an XML adapter or JavaMoney adapter customization
+   */
+  public static boolean isSupportedCustomization(CPluginCustomization customization) {
+    return Utils.matchesCustomization(customization, COMPLEX_XML_ADAPTER_NAME)
+      || Utils.matchesCustomization(customization, JAVA_MONEY_ADAPTER_NAME);
   }
 
   @Override
   protected void init(Options options) throws Exception {
 
-    // this is a dirty hack to prevent XJC from falling over when a customisation is attached in a schema that is
-    // part of a prior compilation episode - https://github.com/eclipse-ee4j/jaxb-ri/issues/1320
+    // XJC rejects unused customizations from prior episodes without these hooks.
+    // https://github.com/eclipse-ee4j/jaxb-ri/issues/1320
 
     ByteBuddyAgent.install();
 
-//  Does not work :(
-//
-//    final ElementMatcher.Junction<NamedElement> uselessCheckerTypeDef = named("com.sun.tools.xjc.reader.xmlschema.UnusedCustomizationChecker");
-//
-//    final AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, module) ->
-//      builder.method(checkMethod).intercept(MethodDelegation.to(UselessCustomizationCheckerInterceptor.class));
-//
-//    AgentBuilder bldr = new AgentBuilder.Default()
-//      .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
-//      .type(uselessCheckerTypeDef)
-//      .transform(transformer);
-//
-//    ResettableClassFileTransformer installOn = bldr.installOn(ByteBuddyAgent.getInstrumentation());
-
-    // need to shuffle through component customizations
+    // Acknowledge customizations before XJC assigns their owners.
 
     new ByteBuddy()
       .redefine(CCustomizations.class)
@@ -97,8 +142,7 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
       .load(getClass().getClassLoader(), ClassReloadingStrategy.fromInstalledAgent())
       .getLoaded();
 
-
-    // and also ack BIXPluginCustomizations that are otherwise turned into errors by the useless checker junk
+    // Prior episode customizations must also pass the schema customization check.
 
     final Class<?> uselessCheckerType = getClass().getClassLoader().loadClass("com.sun.tools.xjc.reader.xmlschema.UnusedCustomizationChecker");
 
@@ -112,89 +156,79 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
   }
 
   @Override
+  @SuppressWarnings({"rawtypes"})
   public void postProcessModel(Model model, ErrorHandler errorHandler) {
 
     AdapterInspector inspector = new AdapterInspector();
+    AmountAdapterGenerator amountAdapterGenerator = new AmountAdapterGenerator(model);
 
     for (final CClassInfo classInfo : model.beans().values()) {
       classInfo.accept(inspector);
     }
 
-    // report
+    for (CElementInfo element : model.getAllElements()) {
+      inspector.onElement(element);
+    }
 
-    logReport("2020.3 scanning for XMLAdapter candidates");
+    reportCandidates(inspector);
 
+    AdapterCustomizer customizer = new AdapterCustomizer(amountAdapterGenerator, inspector);
+    logReport("XMLAdapter modifications:");
+    for (final CClassInfo classInfo : model.beans().values()) {
+      postProcessClassInfo(customizer, classInfo);
+    }
+
+    logReport("");
+
+  }
+
+  private void reportCandidates(AdapterInspector inspector) {
+    logReport("Scanning for XMLAdapter candidates");
     Map<String, Stack<AdapterCandidate>> types = inspector.getTypeCandidates();
     Map<String, Stack<AdapterCandidate>> fields = inspector.getFieldCandidates();
 
-    for (Map.Entry<String, Stack<AdapterCandidate>> typeElement : types.entrySet()) {
-
-      if (!typeElement.getValue().isEmpty()) {
-
-        logReport("");
-        logReport("XMLAdapter: {}", typeElement.getKey());
-        logReport("");
-        logReport("Registered Types:");
-
-        for (AdapterCandidate candidate : typeElement.getValue()) {
-          logReport(format("   [+]: %s", candidate.getName()));
-        }
-
+    for (Map.Entry<String, Stack<AdapterCandidate>> entry : types.entrySet()) {
+      logReport("XMLAdapter: {}", entry.getKey());
+      reportCandidates("Registered Types:", entry.getValue());
+      if (fields.containsKey(entry.getKey())) {
+        reportCandidates("Field Candidates:", fields.get(entry.getKey()));
       }
-
-      if (fields.containsKey(typeElement.getKey())) {
-
-        logReport("");
-        logReport(" Field Candidates:");
-
-        for (AdapterCandidate candidate : fields.get(typeElement.getKey())) {
-          logReport("   [+]: {}", candidate.getName());
-        }
-
-        logReport("   {} candidate(s) being considered", fields.get(typeElement.getKey()).size());
-
-      }
-
     }
 
     for (Map.Entry<String, Stack<AdapterCandidate>> entry : fields.entrySet()) {
-
-      if (!types.containsKey(entry.getKey()) && !entry.getValue().isEmpty()) {
-
-        logReport("");
+      if (!types.containsKey(entry.getKey())) {
         logReport("XMLAdapter: {}", entry.getKey());
-        logReport("");
-        logReport("Field Candidates:");
-
-        for (AdapterCandidate candidate : fields.get(entry.getKey())) {
-          logReport("   [+]: {}", candidate.getName());
-        }
-
-        logReport("   {} candidate(s) being considered", fields.get(entry.getKey()).size());
-
+        reportCandidates("Field Candidates:", entry.getValue());
       }
-
     }
-
     logReport("");
-
-    logReport("XMLAdapter modifications:");
-    for (final CClassInfo classInfo : model.beans().values()) {
-      postProcessClassInfo(model, inspector, classInfo);
-    }
-
-    logReport("");
-
   }
 
-  private void postProcessClassInfo(final Model model, AdapterInspector inspector, final CClassInfo classInfo) {
+  private void reportCandidates(String heading, Collection<AdapterCandidate> candidates) {
+    if (candidates.isEmpty()) {
+      return;
+    }
+    logReport(heading);
+    for (AdapterCandidate candidate : candidates) {
+      logReport("   [+]: {}", candidate.getName());
+    }
+    logReport("   {} candidate(s) being considered", candidates.size());
+  }
+
+  private void postProcessClassInfo(AdapterCustomizer customizer, CClassInfo classInfo) {
 
     for (CPropertyInfo property : classInfo.getProperties()) {
-      property.accept(new AdapterCustomizer(model, inspector));
+      property.accept(customizer);
     }
 
   }
 
+  /**
+   * Writes an informational XML adapter report message.
+   *
+   * @param format    the SLF4J message format
+   * @param arguments values for the message format
+   */
   public static void logReport(String format, Object... arguments) {
 
     if (log.isInfoEnabled()) {
@@ -202,10 +236,14 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
     }
   }
 
+  /**
+   * Writes an XML adapter error message.
+   *
+   * @param format    the SLF4J message format
+   * @param arguments values for the message format
+   */
   public static void logError(String format, Object... arguments) {
     log.error(format, arguments);
   }
 
 }
-
-

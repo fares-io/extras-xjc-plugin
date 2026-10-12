@@ -17,10 +17,20 @@ package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.model.CCustomizable;
 
+/**
+ * Represents an XJC model element that has an XML adapter customization.
+ *
+ * @param <T> the XJC model element type
+ */
 public abstract class AdapterCandidate<T extends CCustomizable> {
 
   private final T element;
 
+  /**
+   * Creates a candidate for an XJC model element.
+   *
+   * @param element the customized XJC model element
+   */
   public AdapterCandidate(T element) {
 
     if (element == null) {
@@ -31,10 +41,20 @@ public abstract class AdapterCandidate<T extends CCustomizable> {
 
   }
 
+  /**
+   * Returns the customized XJC model element.
+   *
+   * @return the XJC model element
+   */
   public T getElement() {
     return element;
   }
 
+  /**
+   * Returns the name used when reporting this candidate.
+   *
+   * @return the candidate name
+   */
   public abstract String getName();
 
 }

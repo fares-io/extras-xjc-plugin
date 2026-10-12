@@ -14,7 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fares.bind.xjc.plugins</groupId>
@@ -55,29 +55,38 @@
     <tag>HEAD</tag>
   </scm>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.compiler.release>11</maven.compiler.release>
+    <test.jvm.reflectionArgs/>
 
-    <jaxb.version>4.0.4</jaxb.version>
+    <jaxb.version>4.0.9</jaxb.version>
     <xalan.version>2.7.3</xalan.version>
-    <jaxb.plugin.version>4.0.0</jaxb.plugin.version>
-    <guava.version>32.0.0-jre</guava.version>
-    <bytebuddy.version>1.9.12</bytebuddy.version>
+    <jaxb.plugin.version>4.0.16</jaxb.plugin.version>
+    <bytebuddy.version>1.18.14</bytebuddy.version>
     <slf4j.version>1.7.36</slf4j.version>
     <logback.version>1.2.13</logback.version>
-    <junit.version>5.10.1</junit.version>
+    <junit.version>5.14.4</junit.version>
+
+    <!-- region maven plugins -->
+    <maven.central.publishing.version>0.11.0</maven.central.publishing.version>
+    <maven.compiler.version>3.16.0</maven.compiler.version>
+    <maven.javadoc.version>3.12.0</maven.javadoc.version>
+    <maven.source.version>3.4.0</maven.source.version>
+    <maven.jar.version>3.5.1</maven.jar.version>
+    <maven.clean.version>3.5.0</maven.clean.version>
+    <maven.flatten.version>1.8.0</maven.flatten.version>
+    <maven.dependency.version>3.11.0</maven.dependency.version>
+    <maven.resources.version>3.5.0</maven.resources.version>
+    <maven.gpg.version>3.2.8</maven.gpg.version>
+    <maven.enforcer.version>3.6.3</maven.enforcer.version>
+    <maven.enforcer.extras.version>1.12.1</maven.enforcer.extras.version>
+    <maven.surefire.version>3.6.0</maven.surefire.version>
+    <maven.surefire.report.version>3.6.0</maven.surefire.report.version>
+    <maven.project.info.reports.version>3.9.0</maven.project.info.reports.version>
+    <maven.release.version>3.3.1</maven.release.version>
+    <!-- endregion -->
   </properties>
 
   <dependencies>
@@ -102,11 +111,12 @@
     <!-- region logging dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
     </dependency>
     <!-- endregion -->
     <!-- region testing -->
@@ -116,8 +126,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -156,11 +166,6 @@
     <dependency>
       <groupId>org.jvnet.jaxb</groupId>
       <artifactId>jaxb-plugins</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jvnet.jaxb</groupId>
-      <artifactId>jaxb-annox</artifactId>
       <scope>test</scope>
     </dependency>
     <!-- endregion -->
@@ -227,13 +232,13 @@
         <version>${slf4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jul-to-slf4j</artifactId>
-        <version>${slf4j.version}</version>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
+        <artifactId>logback-core</artifactId>
         <version>${logback.version}</version>
       </dependency>
       <!-- endregion -->
@@ -267,11 +272,6 @@
         <artifactId>jaxb-plugins</artifactId>
         <version>${jaxb.plugin.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.jvnet.jaxb</groupId>
-        <artifactId>jaxb-annox</artifactId>
-        <version>${jaxb.plugin.version}</version>
-      </dependency>
       <!-- endregion -->
     </dependencies>
   </dependencyManagement>
@@ -280,248 +280,222 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>flatten-maven-plugin</artifactId>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
+          <autoPublish>false</autoPublish>
+          <waitUntil>validated</waitUntil>
+        </configuration>
       </plugin>
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+      <!-- override old default jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Built-By>fares.io</Built-By>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Publish a resolved POM to Sonatype Central for Maven CI friendly builds. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>ossrh</flattenMode>
+          <pomElements>
+            <build>remove</build>
+          </pomElements>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten.clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- override old default resources -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.9.2,)</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>[11,)</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-bytecode-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <enforceBytecodeVersion>
+                  <maxJdkVersion>11</maxJdkVersion>
+                </enforceBytecodeVersion>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>extra-enforcer-rules</artifactId>
+            <version>${maven.enforcer.extras.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- XJC hooks need instrumentation; load the agent before the test JVM starts. -->
+          <argLine>-javaagent:"${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar" ${test.jvm.reflectionArgs}</argLine>
+        </configuration>
+      </plugin>
+      <!-- activate release with java docs and code signing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+        </configuration>
       </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.13</version>
-          <extensions>true</extensions>
-          <configuration>
-            <serverId>ossrh</serverId>
-            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-          </configuration>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>${maven.central.publishing.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
-          <configuration>
-            <source>8</source>
-            <target>8</target>
-          </configuration>
+          <version>${maven.compiler.version}</version>
         </plugin>
-        <!-- ensure javadocs are attached -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.6.0</version>
-          <executions>
-            <execution>
-              <id>attach-javadocs</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven.javadoc.version}</version>
         </plugin>
-        <!-- ensure sources are attached -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.3.0</version>
-          <executions>
-            <execution>
-              <id>attach-sources</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven.source.version}</version>
         </plugin>
-        <!-- override old default jar -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
-          <configuration>
-            <archive>
-              <manifestEntries>
-                <Built-By>fares.io</Built-By>
-              </manifestEntries>
-            </archive>
-          </configuration>
+          <version>${maven.jar.version}</version>
         </plugin>
-        <!-- override old clean plugin version -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>${maven.clean.version}</version>
         </plugin>
-        <!-- module used for maven ci friendly builds, see blueprints -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>flatten-maven-plugin</artifactId>
-          <version>1.5.0</version>
-          <configuration>
-            <updatePomFile>true</updatePomFile>
-            <flattenMode>ossrh</flattenMode>
-            <pomElements>
-              <build>remove</build>
-            </pomElements>
-          </configuration>
-          <executions>
-            <execution>
-              <id>flatten</id>
-              <phase>prepare-package</phase>
-              <goals>
-                <goal>flatten</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>flatten.clean</id>
-              <phase>clean</phase>
-              <goals>
-                <goal>clean</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven.flatten.version}</version>
         </plugin>
-        <!-- manage dependencies e.g. setup endorsed directory -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>${maven.dependency.version}</version>
         </plugin>
-        <!-- override old default resources -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.3.1</version>
-          <configuration>
-            <encoding>UTF-8</encoding>
-          </configuration>
+          <version>${maven.resources.version}</version>
         </plugin>
-        <!-- signing is mandatory for sonatype releases -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.1.0</version>
-          <executions>
-            <execution>
-              <id>sign-artifacts</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>sign</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven.gpg.version}</version>
         </plugin>
-        <!-- ensure minimum versions -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.4.1</version>
-          <executions>
-            <execution>
-              <id>enforce-versions</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>3.8.0</version>
-                  </requireMavenVersion>
-                  <requireJavaVersion>
-                    <version>1.8</version>
-                  </requireJavaVersion>
-                </rules>
-              </configuration>
-            </execution>
-            <execution>
-              <id>enforce-bytecode-version</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <enforceBytecodeVersion>
-                    <maxJdkVersion>11</maxJdkVersion>
-                  </enforceBytecodeVersion>
-                </rules>
-                <fail>true</fail>
-              </configuration>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>extra-enforcer-rules</artifactId>
-              <version>1.7.0</version>
-            </dependency>
-          </dependencies>
+          <version>${maven.enforcer.version}</version>
         </plugin>
-        <!-- surefire testing by default will exclude integration testing -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.1.2</version>
-          <configuration>
-            <excludes>
-              <exclude>**/*IntegrationTest.java</exclude>
-              <exclude>**/*IntegrationTests.java</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.1.2</version>
-          <configuration>
-            <includes>
-              <include>**/*IntegrationTest.java</include>
-              <include>**/*IntegrationTests.java</include>
-            </includes>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>integration-test</goal>
-                <goal>verify</goal>
-              </goals>
-            </execution>
-          </executions>
+          <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>${maven.surefire.report.version}</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>3.4.5</version>
+          <version>${maven.project.info.reports.version}</version>
         </plugin>
-        <!-- activate release with java docs and code signing -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.1</version>
-          <configuration>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <useReleaseProfile>false</useReleaseProfile>
-            <releaseProfiles>release</releaseProfiles>
-          </configuration>
+          <version>${maven.release.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
 
   <profiles>
+    <profile>
+      <id>test-final-field-mutation</id>
+      <activation>
+        <jdk>[26,)</jdk>
+      </activation>
+      <properties>
+        <!-- XJC adapter overrides require access to final model fields. -->
+        <test.jvm.reflectionArgs>--enable-final-field-mutation=ALL-UNNAMED</test.jvm.reflectionArgs>
+      </properties>
+    </profile>
     <!-- release profile is automatically activated during release -->
     <profile>
       <id>release</id>
@@ -533,14 +507,39 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

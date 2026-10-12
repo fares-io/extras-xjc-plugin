@@ -17,8 +17,16 @@ package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.model.CPropertyInfo;
 
+/**
+ * Represents an adapter customization attached to an XJC property.
+ */
 public class AdapterCPropertyInfoCandidate extends AdapterCandidate<CPropertyInfo> {
 
+  /**
+   * Creates a candidate for the property.
+   *
+   * @param element the customized XJC property
+   */
   public AdapterCPropertyInfoCandidate(CPropertyInfo element) {
     super(element);
   }

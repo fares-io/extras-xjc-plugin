@@ -17,8 +17,16 @@ package io.fares.bind.xjc.plugins.extras.xmladapter;
 
 import com.sun.tools.xjc.model.CClassInfo;
 
+/**
+ * Represents an adapter customization attached to an XJC class.
+ */
 public class AdapterCClassInfoCandidate extends AdapterCandidate<CClassInfo> {
 
+  /**
+   * Creates a candidate for the class.
+   *
+   * @param element the customized XJC class
+   */
   public AdapterCClassInfoCandidate(CClassInfo element) {
     super(element);
   }

@@ -15,11 +15,16 @@
  */
 package io.fares.bind.xjc.plugins.extras;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import org.junit.jupiter.api.Test;
+import io.fares.bind.xjc.plugins.extras.testing.AdapterAssertions;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComplexTypeAdapterTest extends AbstractPluginTest {
+public class ComplexTypeAdapterTest extends AbstractPluginTest implements AdapterAssertions {
 
   @Override
   public File getSchemaDirectory() {
@@ -33,7 +38,7 @@ public class ComplexTypeAdapterTest extends AbstractPluginTest {
 
   @Override
   protected TestValidator getValidator() {
-    return new ComplexTypeAdapterValidator();
+    return new ComplexTypeAdapterValidator("MonetaryAmount");
   }
 
   @Override
@@ -41,6 +46,16 @@ public class ComplexTypeAdapterTest extends AbstractPluginTest {
     final List<String> args = new ArrayList<>(super.getArgs());
     args.add("-Xxml-adapter");
     return args;
+  }
+
+  @Override
+  @Test
+  public void testExecute() throws Exception {
+    super.testExecute();
+    ClassOrInterfaceDeclaration book = StaticJavaParser.parse(getClassFile(mojoUnderTest.getGenerateDirectory()))
+      .getClassByName("Book")
+      .orElseThrow(() -> new AssertionError("Missing generated Book"));
+    assertMappedField(book, "datePublished", "LocalDateTime", "LocalDateTimeAdapter");
   }
 
 }

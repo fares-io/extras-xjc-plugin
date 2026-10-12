@@ -18,11 +18,15 @@ package io.fares.bind.xjc.plugins.extras;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+/** Provides class loaders through the current security context. */
 public class SecureLoader {
+
+  /** Creates a secure class loader helper. */
+  public SecureLoader() {
+  }
 
   /**
    * Get the context classloader for the current execution process.
-   *
    * @return the context classloader or system one if no context loader
    */
   public static ClassLoader getContextClassLoader() {

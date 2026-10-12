@@ -33,7 +33,7 @@ public class ComplexTypeAdapterRefTest extends AbstractPluginTest {
 
   @Override
   protected TestValidator getValidator() {
-    return new ComplexTypeAdapterValidator();
+    return new ComplexTypeAdapterValidator("MonetaryAmount");
   }
 
   @Override

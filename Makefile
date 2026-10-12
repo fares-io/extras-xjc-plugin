@@ -14,12 +14,12 @@ usage:
 	@printf "\n$(BOLD)Usage:$(NC)\n\n"
 	@printf "  make clean             $(GREEN)# Clean build directory of this project $(NC)\n"
 	@printf "  make test              $(GREEN)# Unit test the local project $(NC)\n"
-	@printf "  make verify            $(GREEN)# Integration test the local project $(NC)\n"
+	@printf "  make verify            $(GREEN)# Test and verify the local build $(NC)\n"
 	@printf "  make install           $(GREEN)# Test and install the local project $(NC)\n"
-	@printf "  make prepare           $(GREEN)# Test and tag a release $(NC)\n"
-	@printf "  make patch             $(GREEN)# Bump minor version and push upstream $(NC)\n"
-	@printf "  make snapshot          $(GREEN)# Build a snapshot version of the software and uploads it into the artifact repository$(NC)\n\n"
-	@printf "  make release           $(GREEN)# Build a release version of the software and uploads it into the artifact repository$(NC)\n\n"
+	@printf "  make prepare           $(GREEN)# Tag a release and push the tag $(NC)\n"
+	@printf "  make patch             $(GREEN)# Bump patch version and push upstream $(NC)\n"
+	@printf "  make snapshot          $(GREEN)# Build and upload a snapshot to Central$(NC)\n\n"
+	@printf "  make release           $(GREEN)# Build and upload a release to Central for validation$(NC)\n\n"
 	@exit 0
 
 # ---- defaults and macros ---------------------------------------------------------------------------------------------
@@ -29,9 +29,6 @@ export MAVEN_OPTS ?= -Djava.awt.headless=true
 
 # use this option to vary the maven runtime behaviour (e.g. log or memory settings in CI pipelines)
 export MAVEN_CLI_OPTS ?=
-
-# use this option to suppress running any tests during the release phase
-export MAVEN_CLI_SKIP_TEST_OPTS ?= -DskipTests -Darguments=-DskipTests -DskipITs -Darguments=-DskipITs
 
 # set the branch to patch after release tagging (standard release process, do not change)
 BRANCH ?= develop
@@ -60,7 +57,7 @@ verify:
 
 .PHONY: install
 install:
-	@mvn $(MAVEN_CLI_OPTS) --update-snapshots clean install -Prelease
+	@mvn $(MAVEN_CLI_OPTS) --update-snapshots clean install
 
 .PHONY: deps
 deps:
@@ -73,7 +70,7 @@ prepare:
 	@git tag -s -a -m 'release final v$(VERSION)' v$(VERSION)
 	git push --verbose -u origin v$(VERSION)
 
-# bump a minor version number and push it into a specified branch (default develop)
+# bump a patch version number and push it into a specified branch (default develop)
 .PHONY: patch
 patch:
 	$(info Patching local branch $(shell git symbolic-ref --short HEAD) for version $(VERSION))
@@ -84,11 +81,11 @@ patch:
 .PHONY: snapshot
 snapshot:
 	$(info release v$(VERSION)-SNAPSHOT)
-	@mvn -Drevision=$(VERSION)-SNAPSHOT $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh $(MAVEN_CLI_OPTS)
+	@mvn -Drevision=$(VERSION)-SNAPSHOT $(MAVEN_CLI_OPTS) clean deploy -Prelease
 
 # releases the revision into the artifact repository
 .PHONY: release
 release:
 	$(info release v$(VERSION))
-	@mvn -Drevision=$(VERSION) $(MAVEN_CLI_OPTS) clean deploy -Prelease,ossrh $(MAVEN_CLI_OPTS)
+	@mvn -Drevision=$(VERSION) $(MAVEN_CLI_OPTS) clean deploy -Prelease
 

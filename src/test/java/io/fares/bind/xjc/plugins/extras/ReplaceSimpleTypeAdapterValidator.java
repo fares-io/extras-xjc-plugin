@@ -16,62 +16,25 @@
 package io.fares.bind.xjc.plugins.extras;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.ClassExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
-import com.github.javaparser.ast.type.Type;
+import io.fares.bind.xjc.plugins.extras.testing.AdapterAssertions;
 
-import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.stream.Stream;
 
-public class ReplaceSimpleTypeAdapterValidator extends TestValidator {
+public class ReplaceSimpleTypeAdapterValidator extends TestValidator implements AdapterAssertions {
 
   @Override
-  public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-    super.visit(n, arg);
+  public void visit(ClassOrInterfaceDeclaration declaration, Void arg) {
+    super.visit(declaration, arg);
 
-    if ("ExtendElement".equals(n.getName().asString())) {
-      validateFieldName(n, "value");
-    } else if ("Book".equals(n.getName().asString())) {
-      validateFieldName(n, "overrideElement");
-      validateFieldName(n, "overrideAttribute");
-      validateFieldName(n, "refAttribute1");
-      validateFieldName(n, "refAttribute2");
-      validateFieldName(n, "groupAttribute1");
+    if ("ExtendElement".equals(declaration.getNameAsString())) {
+      assertMappedField(declaration, "value", "LocalDateTime", "LocalDateTimeAdapter");
+    } else if ("Book".equals(declaration.getNameAsString())) {
+      Stream.of("overrideElement", "overrideAttribute", "refAttribute1", "refAttribute2", "groupAttribute1")
+        .forEach(name -> assertMappedField(declaration, name, "LocalDateTime", "LocalDateTimeAdapter"));
+    } else {
+      return;
     }
 
     found = true;
-
   }
-
-  private void validateFieldName(ClassOrInterfaceDeclaration n, String name) {
-
-    FieldDeclaration fieldDeclaration = n.getFieldByName(name)
-      .orElseThrow(() -> new IllegalArgumentException("'field " + name + " was not found in book"));
-
-    fieldDeclaration.getVariables().parallelStream()
-      .map(VariableDeclarator::getType)
-      .map(Type::asString)
-      .filter("LocalDateTime"::equals)
-      .findAny()
-      .orElseThrow(() -> new IllegalArgumentException("field " + name + " is not a LocalDateTime type"));
-
-    AnnotationExpr xmlAdapterAnnotation = fieldDeclaration.getAnnotationByClass(XmlJavaTypeAdapter.class)
-      .orElseThrow(() -> new IllegalArgumentException("'XmlJavaTypeAdapter wad not added to field " + name + " in book"));
-
-    xmlAdapterAnnotation.findAll(Expression.class)
-      .parallelStream()
-      .filter(e -> e instanceof SingleMemberAnnotationExpr)
-      .map(SingleMemberAnnotationExpr.class::cast)
-      .map(SingleMemberAnnotationExpr::getMemberValue)
-      .filter(e -> e instanceof ClassExpr)
-      .map(ClassExpr.class::cast)
-      .map(ClassExpr::getType)
-      .map(Type::asString)
-      .filter("LocalDateTimeAdapter"::equals)
-      .findFirst().orElseThrow(() -> new IllegalArgumentException("field " + name + " does not have a LocalDateTimeAdapter"));
-  }
-
 }

@@ -22,23 +22,22 @@ import net.bytebuddy.asm.Advice;
 
 import javax.xml.namespace.QName;
 
-import static io.fares.bind.xjc.plugins.extras.xmladapter.AdapterPlugin.COMPLEX_XML_ADAPTER_NAME;
-
 /**
  * This advice will ensure that the {@link com.sun.tools.xjc.reader.xmlschema.bindinfo.BIXPluginCustomization}
  * for complex XmlAdapter is acknowledged.
  */
 public class UselessCustomizationCheckerInterceptor {
 
+  /** Creates an interceptor for the XJC unused customization checker. */
+  public UselessCustomizationCheckerInterceptor() {
+  }
+
   @Advice.OnMethodEnter
   private static void check(@Advice.Argument(0) BIDeclaration decl, @Advice.Argument(1) XSComponent xc, @Advice.Origin Class<?> type) {
 
     QName declName = decl.getName();
 
-    if (declName != null &&
-      COMPLEX_XML_ADAPTER_NAME.getNamespaceURI().equals(declName.getNamespaceURI()) &&
-      COMPLEX_XML_ADAPTER_NAME.getLocalPart().equals(declName.getLocalPart())) {
-//      System.err.println("ack decl " + decl.getClass().getName());
+    if (declName != null && AdapterPlugin.isSupportedCustomizationName(declName)) {
       decl.markAsAcknowledged();
     }
 
