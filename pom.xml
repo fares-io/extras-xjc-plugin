@@ -66,7 +66,7 @@
     <jaxb.plugin.version>4.0.16</jaxb.plugin.version>
     <bytebuddy.version>1.18.14</bytebuddy.version>
     <slf4j.version>1.7.36</slf4j.version>
-    <logback.version>1.2.13</logback.version>
+    <logback.version>1.5.34</logback.version>
     <junit.version>5.14.4</junit.version>
 
     <!-- region maven plugins -->
