@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NonAdapterClassTest extends AbstractPluginTest {
+class NonAdapterClassTest extends AbstractPluginTest {
 
   @Override
   @Test

@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExtendedSchemaDateAdapterTest extends AbstractPluginTest {
+class ExtendedSchemaDateAdapterTest extends AbstractPluginTest {
 
   @Override
   public File getSchemaDirectory() {

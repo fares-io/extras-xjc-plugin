@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="urn:moneyelements.test"
+  targetNamespace="urn:moneyelements.test"
+  xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb"
+  xmlns:extras="urn:jaxb.fares.io:extras"
+  jaxb:version="3.0"
+  jaxb:extensionBindingPrefixes="extras"
+  elementFormDefault="qualified">
+  <xsd:element name="Book" type="Book"/>
+  <xsd:complexType name="Book">
+    <xsd:sequence>
+      <xsd:element name="price" type="MoneyAmount"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="CurrencyCode">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[A-Z]{3}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="MoneyAmount">
+    <xsd:sequence>
+      <xsd:element name="currencyCode" type="CurrencyCode"/>
+      <xsd:element name="value" type="xsd:decimal"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

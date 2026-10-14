@@ -45,9 +45,15 @@ public class GeneratedMoneyAdapterValidator extends TestValidator implements Ada
     assertAdapter(directory, "SecondaryAmount");
     assertAdapter(directory, "TertiaryAmount");
 
-    assertDefaultConversion(directory.resolve("PrimaryAmountXmlAdapter.java"), "Value", "Currency");
+    assertDefaultConversion(directory.resolve("PrimaryAmountXmlAdapter.java"), "Value", "CurrencyCode");
     assertConverterConversion(directory.resolve("SecondaryAmountXmlAdapter.java"), "MoneyConversions", "Value", "CurrencyCode");
     assertDefaultConversion(directory.resolve("TertiaryAmountXmlAdapter.java"), "Amount", "Currency");
+  }
+
+  static void assertNullGuards(Path directory, String xmlType) throws IOException {
+    Path source = directory.resolve(xmlType + "XmlAdapter.java");
+    assertNullGuard(readMethod(source, "unmarshal"), "amount");
+    assertNullGuard(readMethod(source, "marshal"), "money");
   }
 
   static void assertAdapter(Path directory, String xmlType) throws IOException {

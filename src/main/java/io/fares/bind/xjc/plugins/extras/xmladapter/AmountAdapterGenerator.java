@@ -18,8 +18,8 @@ import java.util.Optional;
  *
  * <p>
  * {@code currencyProperty} selects a required string property and defaults to
- * {@code currency}. The optional {@code valueProperty} selects a decimal property
- * by its generated Java name. When omitted, the other property is used.
+ * {@code currencyCode}. The optional {@code valueProperty} selects a decimal property
+ * by its generated Java name and defaults to {@code value}.
  */
 final class AmountAdapterGenerator {
 
@@ -74,17 +74,15 @@ final class AmountAdapterGenerator {
   }
 
   private static CPropertyInfo currencyProperty(CClassInfo amount, Element settings) {
-    return Optional.ofNullable(amount.getProperty(attribute(settings, "currencyProperty", "currency")))
+    return Optional.ofNullable(amount.getProperty(attribute(settings, "currencyProperty", "currencyCode")))
       .filter(AmountAdapterGenerator::isRequiredString)
       .orElseThrow(() -> new IllegalArgumentException(
         "Amount currency must be a required string attribute or element: " + amount.fullName()));
   }
 
   private static CPropertyInfo decimalProperty(CClassInfo amount, CPropertyInfo currency, Element settings) {
-    String name = attribute(settings, "valueProperty", "");
-    Optional<CPropertyInfo> selected = name.isEmpty()
-      ? amount.getProperties().stream().filter(property -> property != currency).findFirst()
-      : Optional.ofNullable(amount.getProperty(name));
+    String name = attribute(settings, "valueProperty", "value");
+    Optional<CPropertyInfo> selected = Optional.ofNullable(amount.getProperty(name));
     CPropertyInfo value = selected.orElseThrow(() -> new IllegalArgumentException(
       "Amount value property not found: " + name + " in " + amount.fullName()));
     if (value == currency) {
@@ -164,11 +162,14 @@ final class AmountAdapterGenerator {
 
   CAdapter generate(CPropertyInfo property, Element settings) {
     AdapterConfiguration configuration = configuration(property, settings);
-    return Optional.of(new CAdapter(adapterClass(configuration)))
+    CAdapter adapter = Optional.of(new CAdapter(adapterClass(configuration)))
       .filter(mapping -> configuration.xmlType.equals(mapping.defaultType.fullName())
         && BOUND_TYPE.equals(mapping.customType.fullName()))
       .orElseThrow(() -> new IllegalArgumentException(
         "Amount adapter name is already used for a different XML or Java type: " + configuration.adapterName));
+    amountType(property).javadoc = "Placeholder XML type for {@link " + configuration.adapterName
+      + "}.\n<p>Used internally by JAXB. Application code should use {@link javax.money.MonetaryAmount}.</p>";
+    return adapter;
   }
 
   private JDefinedClass adapterClass(AdapterConfiguration configuration) {

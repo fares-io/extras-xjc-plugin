@@ -24,7 +24,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ComplexTypeMultiModelTest extends AbstractPluginTest {
+class ComplexTypeMultiModelTest extends AbstractPluginTest {
 
   @Override
   public File getSchemaDirectory() {

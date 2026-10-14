@@ -25,9 +25,9 @@ public class GeneratedMoneyCurrencyCodeValidator extends TestValidator implement
 
   public void validateAdapter(Path directory) throws IOException {
     GeneratedMoneyAdapterValidator.assertAdapter(directory, "MoneyAmount");
-    GeneratedMoneyAdapterValidator.assertDefaultConversion(directory.resolve("MoneyAmountXmlAdapter.java"), "Value", "Currency");
+    GeneratedMoneyAdapterValidator.assertDefaultConversion(directory.resolve("MoneyAmountXmlAdapter.java"), "Value", "CurrencyCode");
     ClassOrInterfaceDeclaration amount = GeneratedMoneyAdapterValidator.readClass(directory.resolve("MoneyAmount.java"), "MoneyAmount");
-    assertEquals("String", amount.getMethodsByName("getCurrency").get(0).getType().asString());
+    assertEquals("String", amount.getMethodsByName("getCurrencyCode").get(0).getType().asString());
     assertEquals("BigDecimal", amount.getMethodsByName("getValue").get(0).getType().asString());
   }
 }

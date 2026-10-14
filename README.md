@@ -230,17 +230,17 @@ The amount type must contain only a decimal value and a required string currency
 
 | Attribute | Default |
 |---|---|
-| `currencyProperty` | `currency` |
-| `valueProperty` | Automatic decimal selection |
+| `currencyProperty` | `currencyCode` |
+| `valueProperty` | `value` |
 | `converter` | Standard JavaMoney conversion |
 
 A property customization takes precedence over its type customization. Both adapter kinds on the same scope are rejected. Direct customizations on reference properties, value properties, or global element declarations are rejected with the component and source location.
 
-Property names refer to the generated Java model. To override them:
+Property names refer to the generated Java model. Set an explicit property name for each field that does not use `currencyCode` or `value`. For example, to use `currency` and `amount`:
 
 ```xml
 <extras:java-money-adapter
-  currencyProperty="currencyCode"
+  currencyProperty="currency"
   valueProperty="amount"
   converter="org.example.money.JavaMoneyAmountAdapter"/>
 ```

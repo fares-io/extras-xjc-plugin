@@ -12,14 +12,14 @@
       <xsd:element name="price" type="t:MoneyAmount">
         <xsd:annotation>
           <xsd:appinfo>
-            <extras:java-money-adapter/>
+            <extras:java-money-adapter currencyProperty="currency"/>
           </xsd:appinfo>
         </xsd:annotation>
       </xsd:element>
       <xsd:element name="fee" type="t:MoneyAmount">
         <xsd:annotation>
           <xsd:appinfo>
-            <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions"/>
+            <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions" currencyProperty="currency"/>
           </xsd:appinfo>
         </xsd:annotation>
       </xsd:element>

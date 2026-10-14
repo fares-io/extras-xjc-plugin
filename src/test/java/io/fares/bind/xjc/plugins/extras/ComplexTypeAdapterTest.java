@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComplexTypeAdapterTest extends AbstractPluginTest implements AdapterAssertions {
+class ComplexTypeAdapterTest extends AbstractPluginTest implements AdapterAssertions {
 
   @Override
   public File getSchemaDirectory() {

@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PropertyAdapterKindPrecedenceTest extends AbstractPluginTest {
+class PropertyAdapterKindPrecedenceTest extends AbstractPluginTest {
 
   @Override
   public File getSchemaDirectory() {

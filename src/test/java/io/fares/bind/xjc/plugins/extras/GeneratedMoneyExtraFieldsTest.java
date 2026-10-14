@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GeneratedMoneyExtraFieldsTest extends AbstractPluginTest {
+class GeneratedMoneyExtraFieldsTest extends AbstractPluginTest {
 
   @Override
   public File getSchemaDirectory() {

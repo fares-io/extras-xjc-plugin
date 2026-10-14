@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class GeneratedMoneyCurrencyCodeTest extends AbstractPluginTest {
+class GeneratedMoneyCurrencyCodeTest extends AbstractPluginTest {
 
   private final GeneratedMoneyCurrencyCodeValidator validator = new GeneratedMoneyCurrencyCodeValidator();
 

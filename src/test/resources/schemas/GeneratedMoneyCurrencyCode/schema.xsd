@@ -22,7 +22,7 @@
   <xsd:complexType name="MoneyAmount">
     <xsd:simpleContent>
       <xsd:extension base="xsd:decimal">
-        <xsd:attribute name="currency" type="CurrencyCode" use="required">
+        <xsd:attribute name="currencyCode" type="CurrencyCode" use="required">
           <xsd:annotation>
             <xsd:documentation>The ISO 4217 compliant currency code that the amount is nominated in.</xsd:documentation>
           </xsd:annotation>

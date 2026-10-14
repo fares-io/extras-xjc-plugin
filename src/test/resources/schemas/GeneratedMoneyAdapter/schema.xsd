@@ -25,7 +25,7 @@
     </xs:annotation>
     <xs:simpleContent>
       <xs:extension base="xs:decimal">
-        <xs:attribute name="currency" type="xs:string" use="required"/>
+        <xs:attribute name="currencyCode" type="xs:string" use="required"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -44,7 +44,7 @@
   <xs:complexType name="TertiaryAmount">
     <xs:annotation>
       <xs:appinfo>
-        <extras:java-money-adapter valueProperty="amount"/>
+        <extras:java-money-adapter currencyProperty="currency" valueProperty="amount"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:sequence>

@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ComplexTypeAdapterCollectionTest extends AbstractPluginTest {
+class ComplexTypeAdapterCollectionTest extends AbstractPluginTest {
 
   @Override
   public File getSchemaDirectory() {

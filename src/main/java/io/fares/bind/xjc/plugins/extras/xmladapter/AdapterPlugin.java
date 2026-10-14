@@ -72,8 +72,8 @@ public class AdapterPlugin extends AbstractParameterizablePlugin {
    * Local name of the JavaMoney adapter customisation.
    *
    * <p>
-   * {@code currencyProperty} defaults to {@code currency}. The optional
-   * {@code valueProperty} selects the decimal property by its generated Java name.
+   * {@code currencyProperty} defaults to {@code currencyCode}. The optional
+   * {@code valueProperty} defaults to {@code value}; both names refer to generated Java properties.
    * Without it, the decimal property is selected automatically. Both properties
    * must belong to the amount type and must differ.
    *

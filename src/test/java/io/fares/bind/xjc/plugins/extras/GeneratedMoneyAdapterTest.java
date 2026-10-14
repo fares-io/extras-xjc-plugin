@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-public class GeneratedMoneyAdapterTest extends AbstractPluginTest {
+class GeneratedMoneyAdapterTest extends AbstractPluginTest {
 
   private final GeneratedMoneyAdapterValidator validator = new GeneratedMoneyAdapterValidator();
 
@@ -37,5 +37,19 @@ public class GeneratedMoneyAdapterTest extends AbstractPluginTest {
   public void testExecute() throws Exception {
     super.testExecute();
     validator.validateAdapters(mojoUnderTest.getGenerateDirectory().toPath().resolve("test/generatedmoney"));
+  }
+
+  @Test
+  public void testDefaultConversionAdapterNullGuards() throws Exception {
+    super.testExecute();
+    GeneratedMoneyAdapterValidator.assertNullGuards(
+      mojoUnderTest.getGenerateDirectory().toPath().resolve("test/generatedmoney"), "PrimaryAmount");
+  }
+
+  @Test
+  public void testConfiguredConverterAdapterNullGuards() throws Exception {
+    super.testExecute();
+    GeneratedMoneyAdapterValidator.assertNullGuards(
+      mojoUnderTest.getGenerateDirectory().toPath().resolve("test/generatedmoney"), "SecondaryAmount");
   }
 }

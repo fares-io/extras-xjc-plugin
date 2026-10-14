@@ -35,10 +35,6 @@ public class AdapterInspector implements CClassInfoParent.Visitor<CClassInfo>, C
 
   private final Map<String, Stack<AdapterCandidate>> fieldCandidates = new HashMap<>();
 
-  /** Creates an inspector for XML adapter customizations. */
-  public AdapterInspector() {
-  }
-
   /**
    * Returns candidates declared on XJC classes.
    *

@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public abstract class AbstractPluginTest extends RunXJCMojo {
+abstract class AbstractPluginTest extends RunXJCMojo {
 
   AbstractXJCMojo<Options> mojoUnderTest;
 
@@ -99,7 +99,7 @@ public abstract class AbstractPluginTest extends RunXJCMojo {
   protected abstract TestValidator getValidator();
 
   protected File getGeneratedDirectory() {
-    return new File(getBaseDir(), "target/generated-test-sources/xjc");
+    return new File(getBaseDir(), "target/generated-test-sources/xjc/" + getClass().getSimpleName());
   }
 
   protected boolean isDebug() {
