@@ -21,8 +21,8 @@
   </xsd:simpleType>
   <xsd:complexType name="MoneyAmount">
     <xsd:sequence>
-      <xsd:element name="currencyCode" type="CurrencyCode"/>
-      <xsd:element name="value" type="xsd:decimal"/>
+      <xsd:element name="currency" type="CurrencyCode"/>
+      <xsd:element name="amount" type="xsd:decimal"/>
     </xsd:sequence>
   </xsd:complexType>
 </xsd:schema>

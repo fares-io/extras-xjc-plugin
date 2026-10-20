@@ -1,10 +1,10 @@
 package io.fares.bind.xjc.plugins.extras;
 
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.jupiter.api.Test;
 
 class GeneratedMoneyAdapterTest extends AbstractPluginTest {
 
@@ -40,14 +40,14 @@ class GeneratedMoneyAdapterTest extends AbstractPluginTest {
   }
 
   @Test
-  public void testDefaultConversionAdapterNullGuards() throws Exception {
+  void testDefaultConversionAdapterNullGuards() throws Exception {
     super.testExecute();
     GeneratedMoneyAdapterValidator.assertNullGuards(
       mojoUnderTest.getGenerateDirectory().toPath().resolve("test/generatedmoney"), "PrimaryAmount");
   }
 
   @Test
-  public void testConfiguredConverterAdapterNullGuards() throws Exception {
+  void testConfiguredConverterAdapterNullGuards() throws Exception {
     super.testExecute();
     GeneratedMoneyAdapterValidator.assertNullGuards(
       mojoUnderTest.getGenerateDirectory().toPath().resolve("test/generatedmoney"), "SecondaryAmount");

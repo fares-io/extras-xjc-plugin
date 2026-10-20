@@ -14,7 +14,7 @@
   <xs:complexType name="Amount">
     <xs:annotation>
       <xs:appinfo>
-        <extras:java-money-adapter/>
+        <extras:java-money-adapter currencyProperty="currencyCode" valueProperty="value"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:simpleContent>

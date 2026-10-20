@@ -6,7 +6,7 @@
   version="3.0">
   <jaxb:bindings schemaLocation="schema.xsd" node="/xsd:schema">
     <jaxb:bindings node="xsd:complexType[@name=&apos;MoneyAmount&apos;]">
-      <extras:java-money-adapter/>
+      <extras:java-money-adapter currencyProperty="currencyCode" valueProperty="value"/>
     </jaxb:bindings>
   </jaxb:bindings>
 </jaxb:bindings>

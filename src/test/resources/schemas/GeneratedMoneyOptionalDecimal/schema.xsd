@@ -14,7 +14,7 @@
   <xs:complexType name="Amount">
     <xs:annotation>
       <xs:appinfo>
-        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions" currencyProperty="currency"/>
+        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions" currencyProperty="currency" valueProperty="value"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:sequence>

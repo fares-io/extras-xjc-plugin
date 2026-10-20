@@ -18,8 +18,8 @@ import java.util.Optional;
  *
  * <p>
  * {@code currencyProperty} selects a required string property and defaults to
- * {@code currencyCode}. The optional {@code valueProperty} selects a decimal property
- * by its generated Java name and defaults to {@code value}.
+ * {@code currency}. The optional {@code valueProperty} selects a decimal property
+ * by its generated Java name and defaults to {@code amount}.
  */
 final class AmountAdapterGenerator {
 
@@ -74,14 +74,14 @@ final class AmountAdapterGenerator {
   }
 
   private static CPropertyInfo currencyProperty(CClassInfo amount, Element settings) {
-    return Optional.ofNullable(amount.getProperty(attribute(settings, "currencyProperty", "currencyCode")))
+    return Optional.ofNullable(amount.getProperty(attribute(settings, "currencyProperty", "currency")))
       .filter(AmountAdapterGenerator::isRequiredString)
       .orElseThrow(() -> new IllegalArgumentException(
         "Amount currency must be a required string attribute or element: " + amount.fullName()));
   }
 
   private static CPropertyInfo decimalProperty(CClassInfo amount, CPropertyInfo currency, Element settings) {
-    String name = attribute(settings, "valueProperty", "value");
+    String name = attribute(settings, "valueProperty", "amount");
     Optional<CPropertyInfo> selected = Optional.ofNullable(amount.getProperty(name));
     CPropertyInfo value = selected.orElseThrow(() -> new IllegalArgumentException(
       "Amount value property not found: " + name + " in " + amount.fullName()));

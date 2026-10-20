@@ -230,19 +230,18 @@ The amount type must contain only a decimal value and a required string currency
 
 | Attribute | Default |
 |---|---|
-| `currencyProperty` | `currencyCode` |
-| `valueProperty` | `value` |
+| `currencyProperty` | `currency` |
+| `valueProperty` | `amount` |
 | `converter` | Standard JavaMoney conversion |
 
 A property customization takes precedence over its type customization. Both adapter kinds on the same scope are rejected. Direct customizations on reference properties, value properties, or global element declarations are rejected with the component and source location.
 
-Property names refer to the generated Java model. Set an explicit property name for each field that does not use `currencyCode` or `value`. For example, to use `currency` and `amount`:
+Property names refer to the generated Java model. Set an explicit property name for each field that does not use `currency` or `amount`. For example, XML decimal simple content with a `currencyCode` attribute uses:
 
 ```xml
 <extras:java-money-adapter
-  currencyProperty="currency"
-  valueProperty="amount"
-  converter="org.example.money.JavaMoneyAmountAdapter"/>
+  currencyProperty="currencyCode"
+  valueProperty="value"/>
 ```
 
 An explicit value property must exist, be decimal and differ from the currency property. A custom converter provides three public static methods:
@@ -254,3 +253,5 @@ String currency(MonetaryAmount amount);
 ```
 
 At runtime, generated bindings need JAXB and JavaMoney. Default conversion requests `MathContext.UNLIMITED` from the application's JavaMoney provider. A configured converter must also be on the runtime classpath. The Extras compiler plugin is not needed at runtime.
+
+The adapter settings select XML carrier properties. Jackson uses its registered money module for JSON. Its default fields are `currency` and `amount`, with optional `formatted` display text. XML carrier names do not change the JSON field names.

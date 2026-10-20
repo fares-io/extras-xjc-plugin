@@ -15,7 +15,7 @@
     <xs:annotation>
       <xs:appinfo>
         <extras:xml-adapter name="test.badmoney.LegacyAdapter"/>
-        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions"/>
+        <extras:java-money-adapter converter="test.generatedmoney.MoneyConversions" currencyProperty="currencyCode" valueProperty="value"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:simpleContent>

@@ -43,9 +43,10 @@ class GeneratedMoneyElementsTest extends AbstractPluginTest {
   public void testExecute() throws Exception {
     super.testExecute();
     Path directory = mojoUnderTest.getGenerateDirectory().toPath().resolve("test/moneyelements");
-    validator.validateAdapter(directory);
+    GeneratedMoneyAdapterValidator.assertAdapter(directory, "MoneyAmount");
+    GeneratedMoneyAdapterValidator.assertDefaultConversion(directory.resolve("MoneyAmountXmlAdapter.java"), "Amount", "Currency");
     var amount = GeneratedMoneyAdapterValidator.readClass(directory.resolve("MoneyAmount.java"), "MoneyAmount");
-    for (String name : List.of("currencyCode", "value")) {
+    for (String name : List.of("currency", "amount")) {
       var field = amount.getFieldByName(name).orElseThrow(() -> new AssertionError("Missing XML field: " + name));
       assertTrue(field.isAnnotationPresent(XmlElement.class), name + " must remain an XML element");
       assertFalse(field.isAnnotationPresent(XmlValue.class), name + " must not become simple content");
